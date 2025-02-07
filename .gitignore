@@ -1,0 +1,8 @@
+# Project exclude paths
+/target/
+
+.idea/
+*.iml
+dependency-reduced-pom.xml
+External Libraries/
+Scratches and Consoles/
