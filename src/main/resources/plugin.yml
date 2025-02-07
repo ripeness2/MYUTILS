@@ -1,0 +1,6 @@
+name: MYUTILS
+version: '${project.version}'
+main: org.ripeness.myutils.MYUTILS
+api-version: '1.20'
+authors: [_ripeness]
+description: _ripeness
