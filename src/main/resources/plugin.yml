@@ -4,7 +4,3 @@ main: org.ripeness.myutils.MYUTILS
 api-version: '1.20'
 authors: [_ripeness]
 description: _ripeness
-commands:
-  test:
-    aliases:
-      - as
