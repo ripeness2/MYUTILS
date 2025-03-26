@@ -244,7 +244,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setDisplayName(String name) {
-        if (name != null) {
+        if (name != null && meta != null) {
             meta.setDisplayName(name);
         }
         return this;
@@ -260,14 +260,14 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(List<String> lore) {
-        if (lore != null) {
+        if (lore != null && meta != null) {
             meta.setLore(lore);
         }
         return this;
     }
 
     public ItemBuilder setLore(String lore) {
-        if (lore != null) {
+        if (lore != null && meta != null) {
             ArrayList<String> loreList = new ArrayList<>();
             loreList.add(lore);
             meta.setLore(loreList);
