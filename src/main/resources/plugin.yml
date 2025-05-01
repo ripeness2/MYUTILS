@@ -1,6 +1,6 @@
 name: MYRPNSUTILS
 version: '${project.version}'
 main: org.ripeness.myutils.MYUTILS
-api-version: '1.20'
-authors: [_ripeness]
+api-version: '1.16'
+authors: [ _ripeness ]
 description: _ripeness
