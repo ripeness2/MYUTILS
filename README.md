@@ -22,26 +22,26 @@ this is MYUTILS maven =>
 
 <sup>
   ```
-  public final class yourplugin extends JavaPlugin {
+	
+    public final class yourplugin extends JavaPlugin
+      ListenerRegistration listeners = null;
 
-    ListenerRegistration listeners = null;
-
-    @Override
-    public void onEnable() {
-        // Plugin startup logic
-        listeners = new ListenerRegistration(this, "org.ripeness.yourplugin.listeners");
-        listeners.registerListeners();
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-        try {
-            listeners.unregisterListeners();
-        } catch (Exception e) {
-            getLogger().warning("Failed to unregister listeners: " + e.getMessage());
-        }
-    }
-}
+	    @Override
+	    public void onEnable() {
+	        // Plugin startup logic
+	        listeners = new ListenerRegistration(this, "org.ripeness.yourplugin.listeners");
+	        listeners.registerListeners();
+	    }
+	
+	    @Override
+	    public void onDisable() {
+	        // Plugin shutdown logic
+	        try {
+	            listeners.unregisterListeners();
+	        } catch (Exception e) {
+	            getLogger().warning("Failed to unregister listeners: " + e.getMessage());
+	        }
+	    }
+	}
   ```
 </sup>
