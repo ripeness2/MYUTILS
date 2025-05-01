@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class RNSQLManager {
 
-    public static void set(Object key, Object value, RNSQLLocal local) throws SQLException {
+    public static void set(Object key, Object value, SQLLocal local) throws SQLException {
         Connection connection = local.connect();
         String table = local.getTable();
 
@@ -36,7 +36,7 @@ public class RNSQLManager {
         preparedStatement.executeUpdate();
     }
 
-    public static void dropTable(RNSQLLocal local) throws SQLException {
+    public static void dropTable(SQLLocal local) throws SQLException {
         Connection connection = local.connect();
         String table = local.getTable();
 
@@ -48,7 +48,7 @@ public class RNSQLManager {
     }
 
     // Genel get() fonksiyonu - Key'e göre değeri çeker
-    public static String get(String key, RNSQLLocal local) throws SQLException {
+    public static String get(String key, SQLLocal local) throws SQLException {
         Connection connection = local.connect();
         String table = local.getTable();
         String keyString = objectToString(key);
@@ -66,7 +66,7 @@ public class RNSQLManager {
     }
 
     // String olarak dönen veriyi getirir
-    public static String getString(String key, RNSQLLocal local, boolean includeQuotes) throws SQLException {
+    public static String getString(String key, SQLLocal local, boolean includeQuotes) throws SQLException {
         String value = get(key, local);
         if (value != null && !includeQuotes) {
             return value.replace("\"", ""); // Tırnakları temizle
@@ -76,7 +76,7 @@ public class RNSQLManager {
 
 
     // Integer olarak dönen veriyi getirir
-    public static Integer getInt(String key, RNSQLLocal local) throws SQLException {
+    public static Integer getInt(String key, SQLLocal local) throws SQLException {
         String value = get(key, local);
         if (value != null) {
             try {
@@ -89,7 +89,7 @@ public class RNSQLManager {
     }
 
     // Boolean olarak dönen veriyi getirir
-    public static Boolean getBoolean(String key, RNSQLLocal local) throws SQLException {
+    public static Boolean getBoolean(String key, SQLLocal local) throws SQLException {
         String value = get(key, local);
         if (value != null) {
             return Boolean.parseBoolean(value.replace("\"", "")); // Tırnak işaretlerini temizle ve parse et
@@ -98,7 +98,7 @@ public class RNSQLManager {
     }
 
     // List<String> olarak dönen veriyi getirir
-    public static List<String> getStringList(String key, RNSQLLocal local) throws SQLException {
+    public static List<String> getStringList(String key, SQLLocal local) throws SQLException {
         String value = get(key, local);
 
         // Eğer null ya da boş stringse direkt boş liste döndür
@@ -124,7 +124,7 @@ public class RNSQLManager {
     }
 
 
-    public static HashMap<String, Object> getHashMap(String key, RNSQLLocal local) throws SQLException {
+    public static HashMap<String, Object> getHashMap(String key, SQLLocal local) throws SQLException {
         String value = get(key, local);
 
         // Eğer değer null, boş ya da geçersiz formatta ise boş bir HashMap döndür
@@ -217,7 +217,7 @@ public class RNSQLManager {
         }
     }
 
-    public static boolean hasKey(String keystr, RNSQLLocal local) throws SQLException {
+    public static boolean hasKey(String keystr, SQLLocal local) throws SQLException {
         Connection connection = local.connect();
         String table = local.getTable();
 
@@ -236,7 +236,7 @@ public class RNSQLManager {
     }
 
 
-    public static void ensureTableExists(RNSQLLocal local, String tableName) throws SQLException {
+    public static void ensureTableExists(SQLLocal local, String tableName) throws SQLException {
 
 
         // Tablo var mı kontrol et
@@ -249,7 +249,7 @@ public class RNSQLManager {
         }
     }
 
-    public static List<String> getAllKeys(RNSQLLocal local) throws SQLException {
+    public static List<String> getAllKeys(SQLLocal local) throws SQLException {
         List<String> keys = new ArrayList<>();
         String table = local.getTable();
 

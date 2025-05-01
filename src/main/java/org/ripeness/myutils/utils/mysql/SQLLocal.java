@@ -11,7 +11,7 @@ import java.sql.*;
  *
  */
 
-public class RNSQLLocal {
+public class SQLLocal {
     private final String host;
     private final String username;
     private final String password;
@@ -21,7 +21,7 @@ public class RNSQLLocal {
 
     private Connection connection;
 
-    public RNSQLLocal(String host, String username, String password, int port, String database, String table) {
+    public SQLLocal(String host, String username, String password, int port, String database, String table) {
         this.host = host;
         this.username = username;
         this.password = password;
