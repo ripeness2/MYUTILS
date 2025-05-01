@@ -20,7 +20,7 @@ public class ListenerRegistration {
 
     public void registerListeners() {
         if (initialized) {
-            plugin.getLogger().warning("Listeners have already been registered!");
+            plugin.getLogger().warning("Listeners have already been registered! / for -> " + plugin.getName());
             return; // Zaten yüklüyse işlemi sonlandır
         }
 
@@ -41,17 +41,17 @@ public class ListenerRegistration {
                                 if (Listener.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
                                     Listener listener = (Listener) clazz.getDeclaredConstructor().newInstance();
                                     plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-                                    plugin.getLogger().info("Registered listener: " + className);
+                                    plugin.getLogger().info("Registered listener: " + className + " / for -> " + plugin.getName());
                                 }
                             } catch (Exception e) {
-                                plugin.getLogger().warning("Failed to register listener " + className + ": " + e.getMessage());
+                                plugin.getLogger().warning("Failed to register listener " + className + ": " + e.getMessage() + " / for -> " + plugin.getName());
                             }
                         }
                     });
                 }
             }
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to register listeners: " + e.getMessage());
+            plugin.getLogger().severe("Failed to register listeners: " + e.getMessage() + " / for -> " + plugin.getName());
             e.printStackTrace();
         }
     }
