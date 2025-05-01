@@ -7,16 +7,16 @@
 ```
 	
 		<repositories>
-	  	<repository>
-			  <id>jitpack.io</id>
-			  <url>https://jitpack.io</url>
-			</repository>
+	  		<repository>
+			  	<id>jitpack.io</id>
+			  	<url>https://jitpack.io</url>
+				</repository>
 		</repositories>
 
 		<dependency>
-			<groupId>com.github.ripeness2</groupId>
-		  <artifactId>MYUTILS</artifactId>
-		  <version>u-1.2</version>
+				<groupId>com.github.ripeness2</groupId>
+		  	<artifactId>MYUTILS</artifactId>
+		  	<version>u-1.2</version>
 		</dependency>
 ```
 </sup>
