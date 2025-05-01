@@ -13,9 +13,9 @@
 		    </repositories>
 
 		<dependency>
-                    <groupId>com.github.ripeness2</groupId>
-                    <artifactId>MYUTILS</artifactId>
-                    <version>u-1.2</version>
+                <groupId>com.github.ripeness2</groupId>
+                <artifactId>MYUTILS</artifactId>
+                <version>VERSION</version>
 		</dependency>
 
 </sup>

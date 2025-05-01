@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  *
  */
-public class RNSQLManager {
+public class SQLManager {
 
     public static void set(Object key, Object value, SQLLocal local) throws SQLException {
         Connection connection = local.connect();
