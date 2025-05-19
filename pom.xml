@@ -20,28 +20,55 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <phase>prepare-package</phase>
+                        <id>filter-readme</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>replace</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <file>${basedir}/README.md.template</file>
-                            <outputFile>${basedir}/README.md</outputFile>
-                            <replacements>
-                                <replacement>
-                                    <token>@version@</token>
-                                    <value>${project.version}</value>
-                                </replacement>
-                            </replacements>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>README.md</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                            <!-- Filtrelenmiş README'yi yine köke yaz -->
+                            <outputDirectory>${basedir}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>com.google.code.maven-replacer-plugin</groupId>-->
+<!--                <artifactId>replacer</artifactId>-->
+<!--                <version>1.5.3</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>prepare-package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>replace</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <file>${basedir}/README.md.template</file>-->
+<!--                            <outputFile>${basedir}/README.md</outputFile>-->
+<!--                            <replacements>-->
+<!--                                <replacement>-->
+<!--                                    <token>@version@</token>-->
+<!--                                    <value>${project.version}</value>-->
+<!--                                </replacement>-->
+<!--                            </replacements>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
