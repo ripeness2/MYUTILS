@@ -15,12 +15,10 @@
 		<dependency>
                 <groupId>com.github.ripeness2</groupId>
                 <artifactId>MYUTILS</artifactId>
-                <version>${project.version}</version>
+                <version>u-1.5</version>
 		</dependency>
 
 </sup>
-${project.version}
-@version@
 ## how to use ListenerRegistration
 
 <sup>
