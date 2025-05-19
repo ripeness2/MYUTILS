@@ -15,7 +15,7 @@
 		<dependency>
                 <groupId>com.github.ripeness2</groupId>
                 <artifactId>MYUTILS</artifactId>
-                <version>VERSION</version>
+                <version>$@version@</version>
 		</dependency>
 
 </sup>

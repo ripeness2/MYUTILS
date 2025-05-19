@@ -20,6 +20,29 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                        <configuration>
+                            <file>${basedir}/README.md.template</file>
+                            <outputFile>${basedir}/README.md</outputFile>
+                            <replacements>
+                                <replacement>
+                                    <token>@version@</token>
+                                    <value>${project.version}</value>
+                                </replacement>
+                            </replacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -36,6 +59,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
+
                         </goals>
                     </execution>
                 </executions>
@@ -46,6 +70,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+
         </resources>
     </build>
 
@@ -87,12 +112,12 @@
     </repositories>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>com.bgsoftware</groupId>-->
-<!--            <artifactId>SuperiorSkyblockAPI</artifactId>-->
-<!--            <version>2024.3</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.bgsoftware</groupId>-->
+        <!--            <artifactId>SuperiorSkyblockAPI</artifactId>-->
+        <!--            <version>2024.3</version>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api-plugin</artifactId>
