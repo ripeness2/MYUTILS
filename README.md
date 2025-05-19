@@ -19,7 +19,8 @@
 		</dependency>
 
 </sup>
-
+${project.version}
+@version@
 ## how to use ListenerRegistration
 
 <sup>
