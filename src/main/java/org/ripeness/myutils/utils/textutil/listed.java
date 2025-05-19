@@ -2,13 +2,14 @@ package org.ripeness.myutils.utils.textutil;
 
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ripeness.myutils.utils.chat.tt.rcc;
 
 public class listed {
 
-    private List<String> list;
+    private List<String> list = new ArrayList<>();
 
     public List<String> getList() {
         return list;
