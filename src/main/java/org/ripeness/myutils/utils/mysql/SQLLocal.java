@@ -17,7 +17,7 @@ public class SQLLocal {
     private final String password;
     private final int port;
     private final String database;
-    private final String table;
+    private String table;
 
     private Connection connection;
 
@@ -41,8 +41,8 @@ public class SQLLocal {
     public void createTable() {
         try (Statement stmt = connect().createStatement()) {
             String createTableSQL = "CREATE TABLE IF NOT EXISTS " + getTable() + " ("
-                    + "`key` VARCHAR(255) NOT NULL PRIMARY KEY, "
-                    + "`value` TEXT"
+                    + "`key` VARCHAR(256) NOT NULL PRIMARY KEY, "
+                    + "`value` VARCHAR(256) TEXT"
                     + ")";
             stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
@@ -56,6 +56,10 @@ public class SQLLocal {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setTable(String table) {
+        this.table = table;
     }
 
     public String getTable() {

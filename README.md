@@ -3,6 +3,7 @@
 ### my discord: _ripeness
 
 ## how to get MYUTILS maven
+
 <sup>
 
                 <repositories>
@@ -15,7 +16,7 @@
 		<dependency>
                 <groupId>com.github.ripeness2</groupId>
                 <artifactId>MYUTILS</artifactId>
-                <version>u-1.5</version>
+                <version>VERSION</version>
 		</dependency>
 
 </sup>
