@@ -2,7 +2,7 @@ package org.ripeness.myutils.utils.etc;
 
 import org.bukkit.plugin.Plugin;
 
-public class etcUtil {
+public class pluginsUtil {
 
     public static boolean checkPlugin(String pluginName, Plugin plugin) {
         return plugin.getServer().getPluginManager().getPlugin(pluginName) != null;

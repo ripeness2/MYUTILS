@@ -6,7 +6,7 @@
 
     <groupId>org.ripeness</groupId>
     <artifactId>MYUTILS</artifactId>
-    <version>u-1.6</version>
+    <version>u-1.7</version>
     <packaging>jar</packaging>
 
     <name>MYUTILS</name>

@@ -193,8 +193,25 @@ public class inventoryutil {
                     }
             }
         }
-
         return -1;
+    }
+
+    public static String checkAndGetNbtDataSTRING(String nbt, Inventory i) {
+
+        if (i != null) {
+            for (int i1 = 0; i1 < i.getStorageContents().length; i1++) {
+                ItemStack storageContent = i.getStorageContents()[i1];
+                if (storageContent != null)
+                    if (!storageContent.getType().isAir()) {
+                        NBTItem n = getNBT(storageContent);
+                        if (n != null && n.hasTag(nbt)) {
+                            return n.getString(nbt);
+                        }
+                    }
+            }
+        }
+
+        return null;
     }
 
     public static int getIndexOfItemFromCompNbtInMenu(String compname, String nbt, Inventory i) {

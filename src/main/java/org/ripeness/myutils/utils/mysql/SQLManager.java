@@ -17,11 +17,10 @@ import java.util.stream.Collectors;
  */
 public class SQLManager {
 
-    public static void set(Object key, Object value, SQLLocal local) throws SQLException {
+    public static void set(Object key, Object value, SQLLocal local, String table) throws SQLException {
         Connection connection = local.connect();
-        String table = local.getTable();
 
-        ensureTableExists(local, table);
+        createTable(local, table);
 
         // Key ve Value'yi String olarak kaydetmek için formatları belirliyoruz
         String keyString = objectToString(key);
@@ -36,9 +35,8 @@ public class SQLManager {
         preparedStatement.executeUpdate();
     }
 
-    public static void dropTable(SQLLocal local) throws SQLException {
+    public static void dropTable(SQLLocal local, String table) throws SQLException {
         Connection connection = local.connect();
-        String table = local.getTable();
 
         String query = "DROP TABLE IF EXISTS " + table;
 
@@ -48,9 +46,8 @@ public class SQLManager {
     }
 
     // Genel get() fonksiyonu - Key'e göre değeri çeker
-    public static String get(String key, SQLLocal local) throws SQLException {
+    public static String get(String key, SQLLocal local, String table) throws SQLException {
         Connection connection = local.connect();
-        String table = local.getTable();
         String keyString = objectToString(key);
 
         String query = "SELECT `value` FROM " + table + " WHERE `key` = ?";
@@ -66,8 +63,8 @@ public class SQLManager {
     }
 
     // String olarak dönen veriyi getirir
-    public static String getString(String key, SQLLocal local, boolean includeQuotes) throws SQLException {
-        String value = get(key, local);
+    public static String getString(String key, SQLLocal local, boolean includeQuotes, String table) throws SQLException {
+        String value = get(key, local, table);
         if (value != null && !includeQuotes) {
             return value.replace("\"", ""); // Tırnakları temizle
         }
@@ -76,8 +73,8 @@ public class SQLManager {
 
 
     // Integer olarak dönen veriyi getirir
-    public static Integer getInt(String key, SQLLocal local) throws SQLException {
-        String value = get(key, local);
+    public static Integer getInt(String key, SQLLocal local, String table) throws SQLException {
+        String value = get(key, local, table);
         if (value != null) {
             try {
                 return Integer.parseInt(value.replace("\"", "")); // Tırnak işaretlerini temizle ve parse et
@@ -89,8 +86,8 @@ public class SQLManager {
     }
 
     // Boolean olarak dönen veriyi getirir
-    public static Boolean getBoolean(String key, SQLLocal local) throws SQLException {
-        String value = get(key, local);
+    public static Boolean getBoolean(String key, SQLLocal local, String table) throws SQLException {
+        String value = get(key, local, table);
         if (value != null) {
             return Boolean.parseBoolean(value.replace("\"", "")); // Tırnak işaretlerini temizle ve parse et
         }
@@ -98,8 +95,8 @@ public class SQLManager {
     }
 
     // List<String> olarak dönen veriyi getirir
-    public static List<String> getStringList(String key, SQLLocal local) throws SQLException {
-        String value = get(key, local);
+    public static List<String> getStringList(String key, SQLLocal local, String table) throws SQLException {
+        String value = get(key, local, table);
 
         // Eğer null ya da boş stringse direkt boş liste döndür
         if (value == null || value.equals("\"\"") || value.trim().isEmpty()) {
@@ -124,8 +121,8 @@ public class SQLManager {
     }
 
 
-    public static HashMap<String, Object> getHashMap(String key, SQLLocal local) throws SQLException {
-        String value = get(key, local);
+    public static HashMap<String, Object> getHashMap(String key, SQLLocal local, String table) throws SQLException {
+        String value = get(key, local, table);
 
         // Eğer değer null, boş ya da geçersiz formatta ise boş bir HashMap döndür
         if (value == null || value.equals("\"\"") || value.trim().isEmpty() || !value.startsWith("{") || !value.endsWith("}")) {
@@ -152,7 +149,7 @@ public class SQLManager {
                 String mapValue = keyValue[1].trim();
 
                 // Eğer mapValue bir liste ise
-                if (mapValue.startsWith("[") && mapValue.endsWith("]")) {   
+                if (mapValue.startsWith("[") && mapValue.endsWith("]")) {
                     mapValue = mapValue.substring(1, mapValue.length() - 1); // Köşeli parantezleri temizle
                     if (mapValue.trim().isEmpty()) {
                         resultMap.put(mapKey, new ArrayList<>()); // Eğer liste boşsa boş bir liste ekle
@@ -181,7 +178,6 @@ public class SQLManager {
 
         return resultMap;
     }
-
 
 
     // Özel objeyi String'e çeviren yardımcı metod
@@ -217,15 +213,14 @@ public class SQLManager {
         }
     }
 
-    public static boolean hasKey(String keystr, SQLLocal local) throws SQLException {
+    public static boolean hasKey(String keystr, SQLLocal local, String table) throws SQLException {
         Connection connection = local.connect();
-        String table = local.getTable();
 
         // Anahtar (key) değerini hazırlıyoruz
         String query = "SELECT COUNT(*) FROM " + table + " WHERE `key` = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, "\""+keystr+"\""); // Verilen anahtarı sorguya yerleştiriyoruz
+            preparedStatement.setString(1, "\"" + keystr + "\""); // Verilen anahtarı sorguya yerleştiriyoruz
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getInt(1) > 0; // Eğer sonuç varsa true döndür
@@ -236,7 +231,7 @@ public class SQLManager {
     }
 
 
-    public static void ensureTableExists(SQLLocal local, String tableName) throws SQLException {
+    public static void createTable(SQLLocal local, String tableName) throws SQLException {
 
 
         // Tablo var mı kontrol et
@@ -249,9 +244,8 @@ public class SQLManager {
         }
     }
 
-    public static List<String> getAllKeys(SQLLocal local) throws SQLException {
+    public static List<String> getAllKeys(SQLLocal local, String table) throws SQLException {
         List<String> keys = new ArrayList<>();
-        String table = local.getTable();
 
         // Tüm anahtarları (keys) çekmek için sorgu
         String query = "SELECT `key` FROM " + table;
@@ -270,7 +264,6 @@ public class SQLManager {
         }
         return keys;
     }
-
 
 
 }

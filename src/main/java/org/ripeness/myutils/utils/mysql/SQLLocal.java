@@ -42,7 +42,7 @@ public class SQLLocal {
         try (Statement stmt = connect().createStatement()) {
             String createTableSQL = "CREATE TABLE IF NOT EXISTS " + getTable() + " ("
                     + "`key` VARCHAR(256) NOT NULL PRIMARY KEY, "
-                    + "`value` VARCHAR(256) TEXT"
+                    + "`value` TEXT"
                     + ")";
             stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
