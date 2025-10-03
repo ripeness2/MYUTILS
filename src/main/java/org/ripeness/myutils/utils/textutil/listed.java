@@ -19,6 +19,10 @@ public class listed {
         this.list = list;
     }
 
+    public void replaceAllList(String s1, String s2) {
+        list.replaceAll(s -> s.replace(s1, s2));
+    }
+
     public void send(Player player) {
         if (!getList().isEmpty()) {
             for (String s : getList()) {
