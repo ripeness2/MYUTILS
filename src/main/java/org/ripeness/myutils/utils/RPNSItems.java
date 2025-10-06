@@ -8,6 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.ripeness.myutils.utils.inventoryies.inventoryutil;
 import org.ripeness.myutils.utils.items.ItemBuilder;
 
 import javax.annotation.Nullable;
@@ -38,6 +40,9 @@ public class RPNSItems {
             String headowner = null;
             int amount = 1;
             Map<String, String> nbties = new HashMap<>();
+            List<String> consolecmds = new ArrayList<>();
+            List<String> playercmds = new ArrayList<>();
+
 
             ConfigurationSection cs = cf.getConfigurationSection(loc);
             if (cs != null) {
@@ -153,6 +158,13 @@ public class RPNSItems {
 //                    }
 //                }
 
+                    consolecmds = cs.getStringList("consolecmds");
+                    playercmds = cs.getStringList("playercmds");
+
+                    NBTItem nbtItem = new NBTItem(res);
+                    nbtItem.setString("myutils_cmdexecutor_console", String.join(";;;;", consolecmds));
+                    nbtItem.setString("myutils_cmdexecutor_player", String.join(";;;;", playercmds));
+                    nbtItem.mergeNBT(res);
 
                     return res;
                 }
@@ -264,6 +276,40 @@ public class RPNSItems {
             }
             return false;
         }
+
+        public static <T> T getItemNbtResultInInventory(Inventory in, String nbtKey, Class<T> resultClazz) {
+            if (in != null) {
+                int i = inventoryutil.getIndexOfItemFromNbtInMenu(nbtKey, in);
+                if (i == -1) return null;
+                ItemStack item = in.getItem(i);
+                if (item != null) {
+                    NBTItem nbtItem = getNBT(item);
+                    if (nbtItem != null) {
+                        if (resultClazz == String.class) {
+                            return resultClazz.cast(nbtItem.getString(nbtKey));
+                        } else if (resultClazz == Integer.class) {
+                            return resultClazz.cast(nbtItem.getInteger(nbtKey));
+                        } else if (resultClazz == Boolean.class) {
+                            return resultClazz.cast(nbtItem.getBoolean(nbtKey));
+                        } else if (resultClazz == Double.class) {
+                            return resultClazz.cast(nbtItem.getDouble(nbtKey));
+                        } // stringlist
+                        else if (resultClazz == List.class) {
+                            if (nbtItem.hasTag(nbtKey)) {
+                                return resultClazz.cast(nbtItem.getStringList(nbtKey));
+                            } else {
+                                return resultClazz.cast(new ArrayList<String>());
+                            }
+                        } else {
+                            return null;
+                        }
+
+                    }
+                }
+            }
+            return null;
+        }
+
 
     }
 
