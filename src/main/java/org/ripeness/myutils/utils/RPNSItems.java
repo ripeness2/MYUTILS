@@ -59,6 +59,13 @@ public class RPNSItems {
                     }
                     lores = ex;
                 }
+                if (cs.isList("lore")) {
+                    List<String> ex = new ArrayList<>();
+                    for (String s : cs.getStringList("lore")) {
+                        ex.add(rcc(applyPAPI(pl, s)));
+                    }
+                    lores = ex;
+                }
                 if (cs.isInt("modeldata")) {
                     cmodeldata = cs.getInt("modeldata");
                 }
