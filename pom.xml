@@ -132,10 +132,10 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
-        <repository>
-            <id>bg-repo</id>
-            <url>https://repo.bg-software.com/repository/api/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>bg-repo</id>-->
+<!--            <url>https://repo.bg-software.com/repository/api/</url>-->
+<!--        </repository>-->
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
@@ -145,10 +145,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>phoenix</id>
-            <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>phoenix</id>-->
+<!--            <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>-->
+<!--        </repository>-->
         <repository>
             <id>md_5-public</id>
             <url>https://repo.md-5.net/content/groups/public/</url>
@@ -156,16 +156,16 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.17.0</version>
-        </dependency>
-        <dependency>
-            <groupId>net.wesjd</groupId>
-            <artifactId>anvilgui</artifactId>
-            <version>1.10.4-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.commons</groupId>-->
+<!--            <artifactId>commons-lang3</artifactId>-->
+<!--            <version>3.17.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>net.wesjd</groupId>-->
+<!--            <artifactId>anvilgui</artifactId>-->
+<!--            <version>1.10.4-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <!--        <dependency>-->
         <!--            <groupId>com.bgsoftware</groupId>-->
         <!--            <artifactId>SuperiorSkyblockAPI</artifactId>-->
