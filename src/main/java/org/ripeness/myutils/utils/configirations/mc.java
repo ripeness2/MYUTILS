@@ -5,18 +5,24 @@ import org.bukkit.plugin.Plugin;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class mc {
-    private static Plugin plugin = null;
-    public static final ConcurrentHashMap<String, multipleConfigurationClass> configurations = new ConcurrentHashMap<>();
 
-    public static void init(Plugin pl) {
+    private Plugin plugin = null;
+
+    public mc(Plugin p) {
+        plugin = p;
+    }
+
+    public final ConcurrentHashMap<String, multipleConfigurationClass> configurations = new ConcurrentHashMap<>();
+
+    public void init(Plugin pl) {
         plugin = pl;
     }
 
-    public static Plugin getPlugin() {
+    public Plugin getPlugin() {
         return plugin;
     }
 
-    public static multipleConfigurationClass getConfigirationGroup(String name) {
+    public multipleConfigurationClass getConfigirationGroup(String name) {
         if (plugin == null) return null;
         if (configurations.containsKey(name)) {
             return configurations.get(name);
@@ -25,10 +31,10 @@ public class mc {
         }
     }
 
-    public static multipleConfigurationClass registerMC(String name) {
+    public multipleConfigurationClass registerMC(String name) {
         multipleConfigurationClass m = null;
         if (!configurations.containsKey(name)) {
-            m = configurations.put(name, new multipleConfigurationClass(name));
+            m = configurations.put(name, new multipleConfigurationClass(name, this));
         }
         return m;
     }

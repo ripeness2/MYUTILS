@@ -17,7 +17,7 @@ public class multipleConfigurationClass {
     private final ConcurrentHashMap<String, File> fileMap = new ConcurrentHashMap<>();
 
     // constructor
-    public multipleConfigurationClass(String child) {
+    public multipleConfigurationClass(String child, mc mc) {
         this.child = child;
         new File(mc.getPlugin().getDataFolder(), this.child).mkdir();
     }
@@ -34,7 +34,7 @@ public class multipleConfigurationClass {
         return child;
     }
 
-    public List<String> getAll() {
+    public List<String> getAll(mc mc) {
         if (mc.getPlugin() == null) return null;
         List<String> l = new ArrayList<>();
         new File(mc.getPlugin().getDataFolder(), getChild()).mkdir();
@@ -43,7 +43,7 @@ public class multipleConfigurationClass {
         return l;
     }
 
-    public void parseAll(boolean save, BiFunction<String, FileConfiguration, Void> afterParse) {
+    public void parseAll(boolean save, BiFunction<String, FileConfiguration, Void> afterParse, mc mc) {
         if (mc.getPlugin() == null) return;
         if (save) {
             for (Map.Entry<String, FileConfiguration> t : fileConfigurationMap.entrySet()) {
@@ -72,7 +72,7 @@ public class multipleConfigurationClass {
         }
     }
 
-    public FileConfiguration getConfig(String key) {
+    public FileConfiguration getConfig(String key, mc mc) {
         if (mc.getPlugin() == null) return null;
         FileConfiguration orDefault = fileConfigurationMap.getOrDefault(key, null);
         if (orDefault == null) {
@@ -86,7 +86,7 @@ public class multipleConfigurationClass {
         return orDefault;
     }
 
-    public boolean notExistCreate(String key, Map<String, Object> data) {
+    public boolean notExistCreate(String key, Map<String, Object> data, mc mc) {
         if (mc.getPlugin() == null) return false;
         boolean exists = new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml").exists();
         if (!exists) {
@@ -96,7 +96,7 @@ public class multipleConfigurationClass {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            FileConfiguration cf = getConfig(key);
+            FileConfiguration cf = getConfig(key, mc);
             cf.set("key", key);
             cf.set("objects", objectmapManager.serializeMap(data));
             try {
@@ -109,11 +109,11 @@ public class multipleConfigurationClass {
         return false;
     }
 
-    public void save(String key) {
+    public void save(String key, mc mc) {
         if (mc.getPlugin() == null) return;
         FileConfiguration cf = fileConfigurationMap.get(key);
         if (cf == null) {
-            cf = getConfig(key);
+            cf = getConfig(key, mc);
         }
         if (cf == null) return;
         try {
