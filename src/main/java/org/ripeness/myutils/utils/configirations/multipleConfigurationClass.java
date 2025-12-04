@@ -9,115 +9,122 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 public class multipleConfigurationClass {
-    private final String child;
+
+    private final String child;      // Alt klasör adı
+    private final mc owner;          // Bu config sınıfı hangi mc instance’ına ait?
+
     private final ConcurrentHashMap<String, FileConfiguration> fileConfigurationMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, File> fileMap = new ConcurrentHashMap<>();
 
-    // constructor
-    public multipleConfigurationClass(String child, mc mc) {
+    private File rootFolder;
+
+    public multipleConfigurationClass(String child, mc owner) {
         this.child = child;
-        new File(mc.getPlugin().getDataFolder(), this.child).mkdir();
+        this.owner = owner;
+
+        // HER PLUGIN İÇİN KENDİ AYRI KLASÖRÜ:
+        this.rootFolder = new File(
+                owner.getPlugin().getDataFolder(),
+                "myconfigs/" + owner.getPlugin().getName() + "/" + this.child
+        );
+
+        rootFolder.mkdirs();
     }
 
-    public Map<String, File> getFileMap() {
-        return fileMap;
+    private File configFile(String key) {
+        return new File(rootFolder, key + ".yml");
     }
 
-    public Map<String, FileConfiguration> getFileConfigurationMap() {
-        return fileConfigurationMap;
+    public List<String> getAll() {
+        File[] list = rootFolder.listFiles();
+        if (list == null) return new ArrayList<>();
+
+        List<String> names = new ArrayList<>();
+        for (File f : list) {
+            if (f.getName().endsWith(".yml"))
+                names.add(f.getName().replace(".yml", ""));
+        }
+
+        return names;
     }
 
-    private String getChild() {
-        return child;
-    }
-
-    public List<String> getAll(mc mc) {
-        if (mc.getPlugin() == null) return null;
-        List<String> l = new ArrayList<>();
-        new File(mc.getPlugin().getDataFolder(), getChild()).mkdir();
-        l = Arrays.stream(Objects.requireNonNull(new File(mc.getPlugin().getDataFolder(), getChild() + "/").listFiles())).map(File::getName).collect(Collectors.toList());
-        l = l.stream().map(s -> s.replace(".yml", "")).collect(Collectors.toList());
-        return l;
-    }
-
-    public void parseAll(boolean save, BiFunction<String, FileConfiguration, Void> afterParse, mc mc) {
-        if (mc.getPlugin() == null) return;
+    public void parseAll(boolean save, BiFunction<String, FileConfiguration, Void> afterParse) {
         if (save) {
             for (Map.Entry<String, FileConfiguration> t : fileConfigurationMap.entrySet()) {
-                String key = t.getKey();
-                FileConfiguration value = t.getValue();
-                File file = fileMap.get(key);
-                if (new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml").exists()) {
-                    try {
-                        value.save(file);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                try {
+                    t.getValue().save(fileMap.get(t.getKey()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }
+
         fileConfigurationMap.clear();
         fileMap.clear();
 
-        File[] list = new File(mc.getPlugin().getDataFolder(), getChild() + "/").listFiles();
+        File[] list = rootFolder.listFiles();
         if (list == null) return;
-        for (File file : list) {
-            String key = file.getName().replace(".yml", "");
-            fileMap.put(key, file);
-            fileConfigurationMap.put(key, YamlConfiguration.loadConfiguration(file));
-            if (afterParse != null) afterParse.apply(key, fileConfigurationMap.get(key));
+
+        for (File f : list) {
+            if (!f.getName().endsWith(".yml")) continue;
+
+            String key = f.getName().replace(".yml", "");
+            FileConfiguration cfg = YamlConfiguration.loadConfiguration(f);
+
+            fileMap.put(key, f);
+            fileConfigurationMap.put(key, cfg);
+
+            if (afterParse != null) afterParse.apply(key, cfg);
         }
     }
 
-    public FileConfiguration getConfig(String key, mc mc) {
-        if (mc.getPlugin() == null) return null;
-        FileConfiguration orDefault = fileConfigurationMap.getOrDefault(key, null);
-        if (orDefault == null) {
-            File file = new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml");
-            if (!file.exists()) return null;
-            fileMap.put(key, file);
-            FileConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
-            fileConfigurationMap.put(key, yamlConfiguration);
-            orDefault = yamlConfiguration;
+    public FileConfiguration getConfig(String key) {
+        if (fileConfigurationMap.containsKey(key)) {
+            return fileConfigurationMap.get(key);
         }
-        return orDefault;
+
+        File file = configFile(key);
+        if (!file.exists()) return null;
+
+        FileConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+        fileConfigurationMap.put(key, cfg);
+        fileMap.put(key, file);
+
+        return cfg;
     }
 
-    public boolean notExistCreate(String key, Map<String, Object> data, mc mc) {
-        if (mc.getPlugin() == null) return false;
-        boolean exists = new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml").exists();
-        if (!exists) {
-            new File(mc.getPlugin().getDataFolder(), getChild()).mkdirs();
-            try {
-                new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml").createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            FileConfiguration cf = getConfig(key, mc);
-            cf.set("key", key);
-            cf.set("objects", objectmapManager.serializeMap(data));
-            try {
-                cf.save(new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return true;
-        }
-        return false;
-    }
+    public boolean notExistCreate(String key, Map<String, Object> data) {
+        File f = configFile(key);
+        if (f.exists()) return false;
 
-    public void save(String key, mc mc) {
-        if (mc.getPlugin() == null) return;
-        FileConfiguration cf = fileConfigurationMap.get(key);
-        if (cf == null) {
-            cf = getConfig(key, mc);
-        }
-        if (cf == null) return;
         try {
-            cf.save(new File(mc.getPlugin().getDataFolder(), getChild() + "/" + key + ".yml"));
+            f.getParentFile().mkdirs();
+            f.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        FileConfiguration cfg = getConfig(key);
+        cfg.set("key", key);
+        cfg.set("objects", objectmapManager.serializeMap(data));
+
+        try {
+            cfg.save(f);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return true;
+    }
+
+    public void save(String key) {
+        FileConfiguration cfg = getConfig(key);
+        if (cfg == null) return;
+
+        try {
+            cfg.save(configFile(key));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

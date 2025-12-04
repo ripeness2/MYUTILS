@@ -6,38 +6,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class mc {
 
-    private Plugin plugin = null;
+    private final Plugin plugin;
 
-    public mc(Plugin p) {
-        plugin = p;
+    public mc(Plugin plugin) {
+        this.plugin = plugin;
     }
 
-    public final ConcurrentHashMap<String, multipleConfigurationClass> configurations = new ConcurrentHashMap<>();
-
-    public void init(Plugin pl) {
-        plugin = pl;
-    }
+    private final ConcurrentHashMap<String, multipleConfigurationClass> configurations = new ConcurrentHashMap<>();
 
     public Plugin getPlugin() {
         return plugin;
     }
 
     public multipleConfigurationClass getConfigirationGroup(String name) {
-        if (plugin == null) return null;
-        if (configurations.containsKey(name)) {
-            return configurations.get(name);
-        } else {
-            return registerMC(name);
-        }
+        return configurations.computeIfAbsent(
+                name,
+                n -> new multipleConfigurationClass(n, this)
+        );
     }
-
-    public multipleConfigurationClass registerMC(String name) {
-        multipleConfigurationClass m = null;
-        if (!configurations.containsKey(name)) {
-            m = configurations.put(name, new multipleConfigurationClass(name, this));
-        }
-        return m;
-    }
-
-
 }
