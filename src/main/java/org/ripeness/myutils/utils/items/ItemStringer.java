@@ -133,7 +133,8 @@ public class ItemStringer {
             }
         }
 
-        if (meta instanceof BannerMeta m && options.isIncludeBannerMeta()) {
+        if (meta instanceof BannerMeta && options.isIncludeBannerMeta()) {
+            BannerMeta m = (BannerMeta) meta;
             List<org.bukkit.block.banner.Pattern> patterns = m.getPatterns();
             if (!patterns.isEmpty()) b.append("{patterns:::");
             for (int i = 0; i < patterns.size(); i++) {
@@ -156,7 +157,8 @@ public class ItemStringer {
             }*/
             if (!patterns.isEmpty()) b.append("}");
         }
-        if (meta instanceof PotionMeta pm && options.isIncludePotionData()) {
+        if (meta instanceof PotionMeta && options.isIncludePotionData()) {
+            PotionMeta pm = (PotionMeta) meta;
             PotionData basePotionData = pm.getBasePotionData();
             b.append("{potion_base:::").append(basePotionData.getType().name()).append("}");
             List<PotionEffect> customEffects = pm.getCustomEffects();
