@@ -92,6 +92,55 @@ public class ItemStringer {
         public void setIncludePotionData(boolean includePotionData) {
             this.includePotionData = includePotionData;
         }
+
+        public String toString() {
+            return "Options{" +
+                    "includeAmount=" + includeAmount +
+                    ", includeModelData=" + includeModelData +
+                    ", includeFlags=" + includeFlags +
+                    ", includeDisplay=" + includeDisplay +
+                    ", includeLore=" + includeLore +
+                    ", includeBannerMeta=" + includeBannerMeta +
+                    ", includePotionData=" + includePotionData +
+                    '}';
+        }
+
+        public String toString2() {
+            return "includeAmount=" + includeAmount +
+                    ", includeModelData=" + includeModelData +
+                    ", includeFlags=" + includeFlags +
+                    ", includeDisplay=" + includeDisplay +
+                    ", includeLore=" + includeLore +
+                    ", includeBannerMeta=" + includeBannerMeta +
+                    ", includePotionData=" + includePotionData;
+        }
+    }
+
+    public static class resultClass {
+        ItemStack result;
+        Options options;
+
+        public resultClass(ItemStack result, Options options) {
+            this.result = result;
+            this.options = options;
+        }
+
+        public ItemStack getResult() {
+            return result;
+        }
+
+        public Options getOptions() {
+            return options;
+        }
+
+        //set
+        public void setResult(ItemStack result) {
+            this.result = result;
+        }
+
+        public void setOptions(Options options) {
+            this.options = options;
+        }
     }
 
     public static String itemToString(ItemStack item, Options options) {
@@ -183,6 +232,9 @@ public class ItemStringer {
             }
         }
 
+        String optionsString = options.toString2();
+        b.append("{options:::").append(optionsString).append("}");
+
         return b.toString();
     }
 
@@ -214,7 +266,7 @@ public class ItemStringer {
         );
     }
 
-    public static ItemStack stringToItem(String s) {
+    public static resultClass stringToItem(String s) {
         // String control
         if (s == null || s.isEmpty()) return null;
         // use regex to get the values between { and }
@@ -384,7 +436,53 @@ public class ItemStringer {
         }
         // final return
 
-        return devam.clone();
+        Options def = new Options(false
+                , false
+                , false
+                , false
+                , false
+                , false
+                , false);
+
+        Pattern OPTIONSCompile = Pattern.compile("\\{options:::(.*?)}");
+        Matcher OPTIONSmatcher = OPTIONSCompile.matcher(s);
+        if (OPTIONSmatcher.find()) {
+            String optionsStr = OPTIONSmatcher.group(1);
+            String[] optionsArray = optionsStr.split(", ");
+            for (String option : optionsArray) {
+                String[] keyValue = option.split("=");
+                if (keyValue.length == 2) {
+                    String key = keyValue[0];
+                    String value = keyValue[1];
+                    boolean boolValue = Boolean.parseBoolean(value);
+                    switch (key) {
+                        case "includeAmount":
+                            def.setIncludeAmount(boolValue);
+                            break;
+                        case "includeModelData":
+                            def.setIncludeModelData(boolValue);
+                            break;
+                        case "includeFlags":
+                            def.setIncludeFlags(boolValue);
+                            break;
+                        case "includeDisplay":
+                            def.setIncludeDisplay(boolValue);
+                            break;
+                        case "includeLore":
+                            def.setIncludeLore(boolValue);
+                            break;
+                        case "includeBannerMeta":
+                            def.setIncludeBannerMeta(boolValue);
+                            break;
+                        case "includePotionData":
+                            def.setIncludePotionData(boolValue);
+                            break;
+                    }
+                }
+            }
+        }
+
+        return new resultClass(devam, def);
     }
 
 }
