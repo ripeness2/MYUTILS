@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
+import org.ripeness.myutils.muc;
 
 import java.net.URL;
 import java.util.*;
@@ -27,7 +28,7 @@ public class ItemBuilder {
      * Verilen iki item'ın config'deki tanımlı özelliklere göre eşleşip eşleşmediğini kontrol eder.
      * İlk item (checkItem) ikinci item'ın (configItem) tanımlı özelliklerine sahip olmalıdır.
      *
-     * @param checkItem Kontrol edilecek item
+     * @param checkItem  Kontrol edilecek item
      * @param configItem Config'de tanımlı referans item
      * @return boolean Eşleşme durumu
      */
@@ -305,6 +306,34 @@ public class ItemBuilder {
         if (color == null) return this;
         if (meta instanceof PotionMeta) {
             ((PotionMeta) meta).setColor(color);
+        }
+        return this;
+    }
+
+    public ItemBuilder applyReplaceDisplay(List<muc.replaceData> replaceDataList) {
+        if (replaceDataList == null) return this;
+        if (meta != null && meta.hasDisplayName()) {
+            String displayName = meta.getDisplayName();
+            for (muc.replaceData rd : replaceDataList)
+                displayName = displayName.replace(rd.getOldChar(), rd.getNewChar());
+            meta.setDisplayName(displayName);
+        }
+        return this;
+    }
+
+    public ItemBuilder applyReplaceLores(List<muc.replaceData> replaceDataList) {
+        if (replaceDataList == null) return this;
+        if (meta != null && meta.hasLore()) {
+            List<String> lores = meta.getLore();
+            if (lores != null) {
+                for (int i = 0; i < lores.size(); i++) {
+                    String line = lores.get(i);
+                    for (muc.replaceData rd : replaceDataList)
+                        line = line.replace(rd.getOldChar(), rd.getNewChar());
+                    lores.set(i, line);
+                }
+                meta.setLore(lores);
+            }
         }
         return this;
     }
