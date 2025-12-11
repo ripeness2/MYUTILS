@@ -17,7 +17,7 @@ public class replaceDataUtil {
     }
 
 
-    public static void a(String oldChar, String newChar) {
+    public void a(String oldChar, String newChar) {
         muc.replaceData rd = new muc.replaceData(oldChar, newChar);
         replaceDataList.add(rd);
     }
