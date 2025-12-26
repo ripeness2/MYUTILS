@@ -6,7 +6,9 @@ import org.ripeness.myutils.utils.objsconf.objectmapManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
@@ -27,11 +29,13 @@ public class multipleConfigurationClass {
         // HER PLUGIN İÇİN KENDİ AYRI KLASÖRÜ:
         this.rootFolder = new File(
                 owner.getPlugin().getDataFolder(),
-                "myconfigs/" + owner.getPlugin().getName() + "/" + this.child
+                owner.getBasePath() + "/" + this.child
         );
 
         rootFolder.mkdirs();
     }
+
+
 
     private File configFile(String key) {
         return new File(rootFolder, key + ".yml");
