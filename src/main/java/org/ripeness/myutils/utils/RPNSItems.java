@@ -197,10 +197,10 @@ public class RPNSItems {
                             }
 
                             // ---- TYPE & VALUE AYRIŞTIRMA ----
-                            String[] valueSplit = rawValue.split(":", 2);
+                            String[] valueSplit = rawValue.split(";", 2);
                             if (valueSplit.length != 2) continue;
 
-                            String typee1 = valueSplit[0].trim();
+                            String typee1 = valueSplit[0].toUpperCase(Locale.ENGLISH).trim();
                             String value = valueSplit[1].trim();
 
                             NBTMaker nbtMaker = new NBTMaker(res, true);
