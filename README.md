@@ -2,6 +2,8 @@
 
 ### my discord: _ripeness
 
+### https://app.gitbook.com/o/asRZPDMyOj17Dy3Pjq6T/s/P6eAIqjW4JVquJPpbgNe/myutils-config-item-getter
+
 ## how to get MYUTILS maven
 
 <sup>
