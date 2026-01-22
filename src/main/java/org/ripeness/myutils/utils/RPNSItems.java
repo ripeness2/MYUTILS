@@ -202,6 +202,7 @@ public class RPNSItems {
 
                             String typee1 = valueSplit[0].toUpperCase(Locale.ENGLISH).trim();
                             String value = valueSplit[1].trim();
+                            value = RPNSItems.papi.applyPAPI(pl, value);
 
                             NBTMaker nbtMaker = new NBTMaker(res, true);
                             if (compoundName != null) {
