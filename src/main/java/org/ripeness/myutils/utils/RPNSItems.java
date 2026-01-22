@@ -2,6 +2,7 @@ package org.ripeness.myutils.utils;
 
 import de.tr7zw.nbtapi.NBTItem;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -18,6 +19,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.ripeness.myutils.utils.inventoryies.inventoryutil;
 import org.ripeness.myutils.utils.items.ItemBuilder;
+import org.ripeness.myutils.utils.nbt.NBTMaker;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -114,7 +116,7 @@ public class RPNSItems {
                         if (cs.isSet("leather_color")) {
                             if (itemMeta instanceof LeatherArmorMeta) {
                                 String[] s = cs.getString("leather_color").split(",");
-                                ((LeatherArmorMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2])));
+                                ((LeatherArmorMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
                             }
                         }
                     }
@@ -168,10 +170,74 @@ public class RPNSItems {
                     consolecmds = cs.getStringList("consolecmds");
                     playercmds = cs.getStringList("playercmds");
 
-                    NBTItem nbtItem = new NBTItem(res);
+                    NBTMaker nbtItem = new NBTMaker(res, true);
                     nbtItem.setString("myutils_cmdexecutor_console", String.join(";;;;", consolecmds));
                     nbtItem.setString("myutils_cmdexecutor_player", String.join(";;;;", playercmds));
-                    nbtItem.mergeNBT(res);
+
+                    ConfigurationSection nbtSection = cs.getConfigurationSection("nbties");
+                    if (nbtSection != null) {
+
+                        for (String rawKey : nbtSection.getKeys(false)) {
+
+                            String rawValue = nbtSection.getString(rawKey);
+                            if (rawValue == null || rawValue.isEmpty()) continue;
+
+                            // ---- COMPOUND AYRIŞTIRMA ( ;; ) ----
+                            String compoundName = null;
+                            String keyName = rawKey;
+
+                            if (rawKey.contains(";;")) {
+                                String[] compoundSplit = rawKey.split(";;", 2);
+                                if (compoundSplit.length != 2) continue;
+
+                                compoundName = compoundSplit[0].trim();
+                                keyName = compoundSplit[1].trim();
+
+                                if (compoundName.isEmpty() || keyName.isEmpty()) continue;
+                            }
+
+                            // ---- TYPE & VALUE AYRIŞTIRMA ----
+                            String[] valueSplit = rawValue.split(":", 2);
+                            if (valueSplit.length != 2) continue;
+
+                            String typee1 = valueSplit[0].trim();
+                            String value = valueSplit[1].trim();
+
+                            NBTMaker nbtMaker = new NBTMaker(res, true);
+                            if (compoundName != null) {
+                                nbtMaker.setCompound(compoundName);
+                            }
+
+                            try {
+
+                                if (typee1.equals("INTEGER")) {
+                                    nbtMaker.setInteger(keyName, Integer.parseInt(value));
+
+                                } else if (typee1.equals("BOOLEAN")) {
+                                    nbtMaker.setBoolean(keyName, Boolean.parseBoolean(value));
+//
+//                            } else if (type.equals("DOUBLE")) {
+//                                nbtMaker.setDouble(keyName, Double.parseDouble(value));
+//
+//                            } else if (type.equals("LONG")) {
+//                                nbtMaker.setLong(keyName, Long.parseLong(value));
+
+                                } else if (typee1.equals("STRING")) {
+                                    nbtMaker.setString(keyName, value);
+
+                                } else {
+                                    // Bilinmeyen type → güvenli fallback
+                                    nbtMaker.setString(keyName, value);
+                                }
+
+                            } catch (Exception ex) {
+                                Bukkit.getLogger().warning(
+                                        "[NBT] Hatalı NBT girişi: key=" + rawKey + " value=" + rawValue
+                                );
+                            }
+                        }
+                    }
+
 
                     return res;
                 }
