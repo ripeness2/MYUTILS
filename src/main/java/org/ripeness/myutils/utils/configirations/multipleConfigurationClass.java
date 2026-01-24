@@ -20,7 +20,7 @@ public class multipleConfigurationClass {
     private final ConcurrentHashMap<String, FileConfiguration> fileConfigurationMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, File> fileMap = new ConcurrentHashMap<>();
 
-    private File rootFolder;
+    private final File rootFolder;
 
     public multipleConfigurationClass(String child, mc owner) {
         this.child = child;
@@ -29,12 +29,11 @@ public class multipleConfigurationClass {
         // HER PLUGIN İÇİN KENDİ AYRI KLASÖRÜ:
         this.rootFolder = new File(
                 owner.getPlugin().getDataFolder(),
-                owner.getBasePath() + "/" + this.child
+                !owner.getBasePath().isEmpty() ? (owner.getBasePath() + "/") : this.child
         );
 
         rootFolder.mkdirs();
     }
-
 
 
     private File configFile(String key) {

@@ -26,6 +26,10 @@ public class mc {
 
     private final ConcurrentHashMap<String, multipleConfigurationClass> configurations = new ConcurrentHashMap<>();
 
+    public ConcurrentHashMap<String, multipleConfigurationClass> getConfigurations() {
+        return configurations;
+    }
+
     public Plugin getPlugin() {
         return plugin;
     }

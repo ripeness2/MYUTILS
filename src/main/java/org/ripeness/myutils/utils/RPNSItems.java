@@ -307,28 +307,93 @@ public class RPNSItems {
         }
 
         public static void setBooleanNBT(ItemStack item, String bo) {
-            NBTItem n = getNBT(item);
             if (item != null) {
+                NBTItem n = getNBT(item);
                 n.setBoolean(bo, true);
                 n.mergeNBT(item);
             }
         }
 
         public static void setStringNBT(ItemStack item, String key, String value) {
-            NBTItem n = getNBT(item);
             if (item != null) {
+                NBTItem n = getNBT(item);
                 n.setString(key, value);
                 n.mergeNBT(item);
             }
         }
 
         public static void setIntegerNBT(ItemStack item, String key, Integer integer) {
-            NBTItem n = getNBT(item);
             if (item != null) {
+                NBTItem n = getNBT(item);
                 n.setInteger(key, integer);
                 n.mergeNBT(item);
             }
         }
+
+        public static void setDoubleNBT(ItemStack item, String key, Double value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setDouble(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setByteNBT(ItemStack item, String key, Byte value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setByte(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setByteArrayNBT(ItemStack item, String key, byte[] value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setByteArray(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setObjectNBT(ItemStack item, String key, Object value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setObject(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setFloatNBT(ItemStack item, String key, Float value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setFloat(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setItemStackNBT(ItemStack item, String key, ItemStack value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setItemStack(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setLongNBT(ItemStack item, String key, Long value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setLong(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
+        public static void setShortNBT(ItemStack item, String key, Short value) {
+            if (item != null) {
+                NBTItem n = getNBT(item);
+                n.setShort(key, value);
+                n.mergeNBT(item);
+            }
+        }
+
 
         public static boolean hasNBTTag(ItemStack item, String nbttag) {
             if (item != null) {

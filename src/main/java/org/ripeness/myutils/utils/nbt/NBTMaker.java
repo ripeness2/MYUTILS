@@ -62,6 +62,87 @@ public class NBTMaker {
         return this;
     }
 
+    public NBTMaker setDouble(String key, double value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setDouble(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setDouble(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setByte(String key, byte value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setByte(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setByte(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setByteArray(String key, byte[] value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setByteArray(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setByteArray(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setObject(String key, Object value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setObject(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setObject(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setFloat(String key, float value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setFloat(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setFloat(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setItemStack(String key, ItemStack value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setItemStack(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setItemStack(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setLong(String key, long value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setLong(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setLong(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+    public NBTMaker setShort(String key, short value) {
+        if (itemnbt != null && item != null) {
+            if (compound == null) {
+                itemnbt.setShort(key, value);
+            } else itemnbt.getOrCreateCompound(compound).setShort(key, value);
+            if (ismerge) itemnbt.mergeNBT(item);
+        }
+        return this;
+    }
+
+
     public NBTMaker setCompound(@Nullable String comp) {
         compound = comp;
         return this;
