@@ -16,6 +16,7 @@ public class multipleConfigurationClass {
 
     private final String child;      // Alt klasör adı
     private final mc owner;          // Bu config sınıfı hangi mc instance’ına ait?
+    private boolean allnamesnull;          // Bu config sınıfı hangi mc instance’ına ait?
 
     private final ConcurrentHashMap<String, FileConfiguration> fileConfigurationMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, File> fileMap = new ConcurrentHashMap<>();
@@ -26,25 +27,28 @@ public class multipleConfigurationClass {
         this.child = child;
         this.owner = owner;
 
+
         // HER PLUGIN İÇİN KENDİ AYRI KLASÖRÜ:
         this.rootFolder = new File(
                 owner.getPlugin().getDataFolder(),
                 !owner.getBasePath().isEmpty() ? (owner.getBasePath() + "/") : this.child
         );
         if (owner.getBasePath().isEmpty() && this.child.isEmpty()) {
-            this.rootFolder = new File(owner.getPlugin().getDataFolder(), "asd.yml").getParentFile();
+            this.allnamesnull = true;
         }
 
-        rootFolder.mkdirs();
+        if (!allnamesnull) rootFolder.mkdirs();
     }
 
 
     private File configFile(String key) {
-        return new File(rootFolder, key + ".yml");
+        return new File(allnamesnull ? owner.getPlugin().getDataFolder() : rootFolder, key + ".yml");
     }
 
     public List<String> getAll() {
-        File[] list = rootFolder.listFiles();
+        File r = rootFolder;
+        if (allnamesnull) r = owner.getPlugin().getDataFolder();
+        File[] list = r.listFiles();
         if (list == null) return new ArrayList<>();
 
         List<String> names = new ArrayList<>();
@@ -70,7 +74,9 @@ public class multipleConfigurationClass {
         fileConfigurationMap.clear();
         fileMap.clear();
 
-        File[] list = rootFolder.listFiles();
+        File r = rootFolder;
+        if (allnamesnull) r = owner.getPlugin().getDataFolder();
+        File[] list = r.listFiles();
         if (list == null) return;
 
         for (File f : list) {
@@ -107,6 +113,9 @@ public class multipleConfigurationClass {
 
         try {
             f.getParentFile().mkdirs();
+        } catch (Exception ignore) {
+        }
+        try {
             f.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
