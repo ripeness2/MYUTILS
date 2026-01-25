@@ -1,7 +1,6 @@
 package org.ripeness.myutils.commandexecutor;
 
 import de.tr7zw.nbtapi.NBTItem;
-import de.tr7zw.nbtapi.NBTList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,11 +16,11 @@ public class commandExecuterListener implements Listener {
 
     private static Plugin plugin;
 
-    public static void init(Plugin plugin) {
+    private void init(Plugin plugin) {
         commandExecuterListener.plugin = plugin;
     }
 
-    public static void register() {
+    private void register() {
         if (plugin == null) return;
         plugin.getServer().getPluginManager().registerEvents(new commandExecuterListener(), plugin);
     }
