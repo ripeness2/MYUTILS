@@ -11,29 +11,26 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.ripeness.myutils.utils.RPNSItems;
 
-import javax.annotation.Nullable;
-
 import static org.ripeness.myutils.utils.chat.tt.rcc;
 
 public class commandExecuterListener implements Listener {
 
-    private static Plugin plugin = null;
+    private Plugin plugin;
 
-    @Nullable
-    public static Plugin getPlugin() {
-        return plugin;
+    commandExecuterListener(Plugin plugin) {
+        this.plugin = plugin;
     }
 
-    private void init(Plugin plugin) {
-        commandExecuterListener.plugin = plugin;
+    void init(Plugin plugin) {
+        this.plugin = plugin;
     }
 
-    private void register() {
+    void register() {
         if (plugin == null) return;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    private void unregister() {
+    void unregister() {
         if (plugin == null) return;
         HandlerList.unregisterAll(this);
     }
