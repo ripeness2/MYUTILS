@@ -15,22 +15,22 @@ import static org.ripeness.myutils.utils.chat.tt.rcc;
 
 public class commandExecuterListener implements Listener {
 
-    private Plugin plugin;
+    public Plugin plugin;
 
-    commandExecuterListener(Plugin plugin) {
+    public commandExecuterListener(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    void init(Plugin plugin) {
+    public void init(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    void register() {
+    public void register() {
         if (plugin == null) return;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    void unregister() {
+    public void unregister() {
         if (plugin == null) return;
         HandlerList.unregisterAll(this);
     }
