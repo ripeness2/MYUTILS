@@ -4,17 +4,25 @@ import de.tr7zw.nbtapi.NBTItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.ripeness.myutils.utils.RPNSItems;
 
+import javax.annotation.Nullable;
+
 import static org.ripeness.myutils.utils.chat.tt.rcc;
 
 public class commandExecuterListener implements Listener {
 
-    private static Plugin plugin;
+    private static Plugin plugin = null;
+
+    @Nullable
+    public static Plugin getPlugin() {
+        return plugin;
+    }
 
     private void init(Plugin plugin) {
         commandExecuterListener.plugin = plugin;
@@ -22,20 +30,25 @@ public class commandExecuterListener implements Listener {
 
     private void register() {
         if (plugin == null) return;
-        plugin.getServer().getPluginManager().registerEvents(new commandExecuterListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    private void unregister() {
+        if (plugin == null) return;
+        HandlerList.unregisterAll(this);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onClickInventoryItem(InventoryClickEvent e) {
+    private void onClickInventoryItem(InventoryClickEvent e) {
         ItemStack item = e.getCurrentItem();
         if (item == null) return;
         if (item.getType().isAir()) return;
         if (item.getItemMeta() == null) return;
         NBTItem nbt = RPNSItems.papi.getNBT(item);
         if (nbt == null) return;
-        if (!nbt.hasKey("myutils_command_executer")) return;
+        if (!nbt.hasKey(plugin.getName() + "+myutils_command_executer")) return;
         Player p = (Player) e.getWhoClicked();
-        String stringList = nbt.getString("myutils_cmdexecutor_console");
+        String stringList = nbt.getString(plugin.getName() + "+myutils_cmdexecutor_console");
         if (stringList == null) return;
         if (stringList.isEmpty()) return;
         // nbtItem.setString("myutils_cmdexecutor_console", String.join(";;;;", consolecmds));

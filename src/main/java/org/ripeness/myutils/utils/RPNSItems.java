@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.ripeness.myutils.utils.inventoryies.inventoryutil;
@@ -32,7 +33,7 @@ public class RPNSItems {
 
     public static class config {
 
-        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl) {
+        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin) {
             Material type = null;
             String display = "";
             List<String> lores = null;
@@ -166,56 +167,57 @@ public class RPNSItems {
 //
 //                    }
 //                }
+                    if (plugin != null) {
 
-                    consolecmds = cs.getStringList("consolecmds");
-                    playercmds = cs.getStringList("playercmds");
+                        consolecmds = cs.getStringList("consolecmds");
+                        playercmds = cs.getStringList("playercmds");
 
-                    NBTMaker nbtItem = new NBTMaker(res, true);
-                    nbtItem.setString("myutils_cmdexecutor_console", String.join(";;;;", consolecmds));
-                    nbtItem.setString("myutils_cmdexecutor_player", String.join(";;;;", playercmds));
+                        NBTMaker nbtItem = new NBTMaker(res, true);
+                        nbtItem.setString(plugin.getName() + "+myutils_cmdexecutor_console", String.join(";;;;", consolecmds));
+                        nbtItem.setString(plugin.getName() + "+myutils_cmdexecutor_player", String.join(";;;;", playercmds));
 
-                    ConfigurationSection nbtSection = cs.getConfigurationSection("nbties");
-                    if (nbtSection != null) {
+                        ConfigurationSection nbtSection = cs.getConfigurationSection("nbties");
+                        if (nbtSection != null) {
 
-                        for (String rawKey : nbtSection.getKeys(false)) {
+                            for (String rawKey : nbtSection.getKeys(false)) {
 
-                            String rawValue = nbtSection.getString(rawKey);
-                            if (rawValue == null || rawValue.isEmpty()) continue;
+                                String rawValue = nbtSection.getString(rawKey);
+                                if (rawValue == null || rawValue.isEmpty()) continue;
 
-                            // ---- COMPOUND AYRIŞTIRMA ( ;; ) ----
-                            String compoundName = null;
-                            String keyName = rawKey;
+                                // ---- COMPOUND AYRIŞTIRMA ( ;; ) ----
+                                String compoundName = null;
+                                String keyName = rawKey;
 
-                            if (rawKey.contains(";;")) {
-                                String[] compoundSplit = rawKey.split(";;", 2);
-                                if (compoundSplit.length != 2) continue;
+                                if (rawKey.contains(";;")) {
+                                    String[] compoundSplit = rawKey.split(";;", 2);
+                                    if (compoundSplit.length != 2) continue;
 
-                                compoundName = compoundSplit[0].trim();
-                                keyName = compoundSplit[1].trim();
+                                    compoundName = compoundSplit[0].trim();
+                                    keyName = compoundSplit[1].trim();
 
-                                if (compoundName.isEmpty() || keyName.isEmpty()) continue;
-                            }
+                                    if (compoundName.isEmpty() || keyName.isEmpty()) continue;
+                                }
 
-                            // ---- TYPE & VALUE AYRIŞTIRMA ----
-                            String[] valueSplit = rawValue.split(";", 2);
-                            if (valueSplit.length != 2) continue;
+                                // ---- TYPE & VALUE AYRIŞTIRMA ----
+                                String[] valueSplit = rawValue.split(";", 2);
+                                if (valueSplit.length != 2) continue;
 
-                            String typee1 = valueSplit[0].toUpperCase(Locale.ENGLISH).trim();
-                            String value = valueSplit[1].trim();
-                            value = RPNSItems.papi.applyPAPI(pl, value);
+                                String typee1 = valueSplit[0].toUpperCase(Locale.ENGLISH).trim();
+                                String value = valueSplit[1].trim();
+                                value = RPNSItems.papi.applyPAPI(pl, value);
 
-                            NBTMaker nbtMaker = new NBTMaker(res, true);
-                            if (compoundName != null) {
-                                nbtMaker.setCompound(compoundName);
-                            }
+                                NBTMaker nbtMaker = new NBTMaker(res, true);
+                                if (compoundName != null) {
+                                    nbtMaker.setCompound(compoundName);
+                                }
 
-                            try {
+                                try {
 
-                                if (typee1.equals("INTEGER")) {
-                                    nbtMaker.setInteger(keyName, Integer.parseInt(value));
+                                    if (typee1.equals("INTEGER")) {
+                                        nbtMaker.setInteger(keyName, Integer.parseInt(value));
 
-                                } else if (typee1.equals("BOOLEAN")) {
-                                    nbtMaker.setBoolean(keyName, Boolean.parseBoolean(value));
+                                    } else if (typee1.equals("BOOLEAN")) {
+                                        nbtMaker.setBoolean(keyName, Boolean.parseBoolean(value));
 //
 //                            } else if (type.equals("DOUBLE")) {
 //                                nbtMaker.setDouble(keyName, Double.parseDouble(value));
@@ -223,22 +225,22 @@ public class RPNSItems {
 //                            } else if (type.equals("LONG")) {
 //                                nbtMaker.setLong(keyName, Long.parseLong(value));
 
-                                } else if (typee1.equals("STRING")) {
-                                    nbtMaker.setString(keyName, value);
+                                    } else if (typee1.equals("STRING")) {
+                                        nbtMaker.setString(keyName, value);
 
-                                } else {
-                                    // Bilinmeyen type → güvenli fallback
-                                    nbtMaker.setString(keyName, value);
+                                    } else {
+                                        // Bilinmeyen type → güvenli fallback
+                                        nbtMaker.setString(keyName, value);
+                                    }
+
+                                } catch (Exception ex) {
+                                    Bukkit.getLogger().warning(
+                                            "[NBT] Hatalı NBT girişi: key=" + rawKey + " value=" + rawValue
+                                    );
                                 }
-
-                            } catch (Exception ex) {
-                                Bukkit.getLogger().warning(
-                                        "[NBT] Hatalı NBT girişi: key=" + rawKey + " value=" + rawValue
-                                );
                             }
                         }
                     }
-
 
                     return res;
                 }
