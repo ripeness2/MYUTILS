@@ -20,6 +20,7 @@ import org.ripeness.myutils.muc;
 import java.net.URL;
 import java.util.*;
 
+@SuppressWarnings("UnusedReturnValue")
 public class ItemBuilder {
     private final ItemStack item;
     private ItemMeta meta;
@@ -335,6 +336,13 @@ public class ItemBuilder {
                 meta.setLore(lores);
             }
         }
+        return this;
+    }
+
+    public ItemBuilder applyAllReplaces(List<muc.replaceData> replaceDataList) {
+        if (replaceDataList == null) return this;
+        applyReplaceLores(replaceDataList);
+        applyReplaceDisplay(replaceDataList);
         return this;
     }
 

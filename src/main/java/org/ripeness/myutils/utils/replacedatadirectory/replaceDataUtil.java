@@ -17,9 +17,10 @@ public class replaceDataUtil {
     }
 
 
-    public void a(String oldChar, String newChar) {
+    public replaceDataUtil a(String oldChar, String newChar) {
         muc.replaceData rd = new muc.replaceData(oldChar, newChar);
         replaceDataList.add(rd);
+        return this;
     }
 
     public List<muc.replaceData> getReplaceDataList() {
