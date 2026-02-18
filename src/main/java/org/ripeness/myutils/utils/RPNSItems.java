@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.ripeness.myutils.muc;
 import org.ripeness.myutils.utils.inventoryies.inventoryutil;
 import org.ripeness.myutils.utils.items.ItemBuilder;
 import org.ripeness.myutils.utils.nbt.NBTMaker;
@@ -292,6 +293,121 @@ public class RPNSItems {
 
 
     public static class papi {
+
+        public static void replaceMetaItem(ItemStack item, List<muc.replaceData> replaceInfos) {
+            if (item == null) return;
+            if (replaceInfos == null) return;
+            if (replaceInfos.isEmpty()) return;
+            ItemMeta itemMeta = item.getItemMeta();
+            if (itemMeta == null) return;
+            if (itemMeta.hasDisplayName()) {
+                String displayName = itemMeta.getDisplayName();
+                for (muc.replaceData ri : replaceInfos) {
+                    displayName = displayName.replace(ri.getOldChar(), ri.getNewChar());
+                }
+                itemMeta.setDisplayName(displayName);
+            }
+            if (itemMeta.hasLore()) {
+                List<String> lore = itemMeta.getLore();
+                if (lore != null) {
+                    List<String> newLore = new ArrayList<>();
+                    for (String s : lore) {
+                        for (muc.replaceData ri : replaceInfos) {
+                            s = s.replace(ri.getOldChar(), ri.getNewChar());
+                        }
+                        newLore.add(s);
+                    }
+                    itemMeta.setLore(newLore);
+                }
+            }
+            item.setItemMeta(itemMeta);
+        }
+
+        public static ItemStack applyPAPItem(OfflinePlayer player, ItemStack item) {
+            // Eşya veya Meta verisi boşsa direkt geri dön (NullPointerException koruması)
+            if (item == null || !item.hasItemMeta()) {
+                return item;
+            }
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) return item;
+
+            // 1. Display Name (Görünen İsim) İşlemi
+            if (meta.hasDisplayName()) {
+                String updatedName = RPNSItems.papi.applyPAPI(player, meta.getDisplayName());
+                meta.setDisplayName(rcc(updatedName));
+            }
+
+            // 2. Lore (Açıklama) İşlemi
+            if (meta.hasLore()) {
+                List<String> updatedLore = new ArrayList<>();
+                //noinspection DataFlowIssue
+                for (String line : meta.getLore()) {
+                    // Her bir satıra tek tek placeholder'ları uygula
+                    updatedLore.add(rcc(PlaceholderAPI.setPlaceholders(player, line)));
+                }
+                meta.setLore(updatedLore);
+            }
+
+            // Meta'yı eşyaya geri yükle
+            item.setItemMeta(meta);
+
+            return item;
+        }
+
+
+//        public static boolean isMatchingItem(ItemStack mainItem, ItemStack otherItem) {
+//            // 1. Null ve Temel Kontroller
+//            if (mainItem == null || otherItem == null) return false;
+//
+//            // 2. Type (Material) Kontrolü
+//            // Config'deki String'i Material'e çeviriyoruz (Büyük/küçük harf duyarsız olması için toUpperCase)
+//            Material configMaterial = otherItem.getType();
+//
+//            // Eğer configdeki material geçersizse veya eşleşmiyorsa false
+//            if (mainItem.getType() != configMaterial) {
+//                return false;
+//            }
+//
+//            // Meta verisini alıyoruz (Display ve ModelData için gerekli)
+//            ItemMeta meta = mainItem.getItemMeta();
+//            ItemMeta otherMeta = otherItem.getItemMeta();
+//            if (otherMeta == null && meta == null) return true;
+//            if (otherMeta == null) return false;
+//            if (meta == null) return false;
+//            String displayName = otherMeta.getDisplayName();
+//
+//            // 3. Display Name Kontrolü
+//            // KURAL: Display null değilse VE boş string ("") değilse kontrol et.
+//            if (!displayName.isEmpty()) {
+//                // Configde isim istenmiş ama eşyanın metası veya ismi yoksa -> false
+//                if (!meta.hasDisplayName()) {
+//                    return false;
+//                }
+//
+//                boolean nameMatches = isNameMatches(displayName, meta);
+//
+//                if (!nameMatches) return false;
+//            }
+//
+//            // 4. Custom Model Data Kontrolü
+//            // KURAL: Modeldata -1 değilse kontrol et.
+//            if (config.getModeldata() != -1) {
+//                // Configde model istenmiş ama eşyanın model datası yoksa -> false
+//                if (meta == null || !meta.hasCustomModelData()) {
+//                    return false;
+//                }
+//
+//                // Sayısal değer eşit değilse -> false
+//                if (meta.getCustomModelData() != config.getModeldata()) {
+//                    return false;
+//                }
+//            }
+//
+//            // Tüm engelleri aştıysa eşleşmiştir
+//            return true;
+//        }
+
 
         public static String applyPAPI(OfflinePlayer pl, String str) {
             if (pl == null) return str;

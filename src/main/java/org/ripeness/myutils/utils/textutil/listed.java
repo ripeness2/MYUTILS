@@ -21,16 +21,17 @@ public class listed {
         this.list = list;
     }
 
-    public void replaceAllList(String s1, String s2) {
+    public listed replaceAllList(String s1, String s2) {
         List<String> l = new ArrayList<>();
         for (String s : new ArrayList<>(list)) {
             s = s.replace(s1, s2);
             l.add(s);
         }
         list = l;
+        return this;
     }
 
-    public void replaceAllList(List<muc.replaceData> replaceDataList) {
+    public listed replaceAllList(List<muc.replaceData> replaceDataList) {
         List<String> l = new ArrayList<>();
         for (String s : new ArrayList<>(list)) {
             for (muc.replaceData replaceData : replaceDataList) {
@@ -41,21 +42,24 @@ public class listed {
             l.add(s);
         }
         list = l;
+        return this;
     }
 
-    public void send(Player player) {
+    public listed send(Player player) {
         if (!getList().isEmpty()) {
             for (String s : getList()) {
                 player.sendMessage(rcc(s));
             }
         }
+        return this;
     }
 
-    public void sendPlaceholder(Player player) {
+    public listed sendPlaceholder(Player player) {
         if (!getList().isEmpty()) {
             for (String s : getList()) {
                 player.sendMessage(rcc(RPNSItems.papi.applyPAPI(player, s)));
             }
         }
+        return this;
     }
 }
