@@ -1,7 +1,10 @@
 package org.ripeness.myutils.hikarisql;
 
+import org.bukkit.Bukkit;
+
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -65,19 +68,55 @@ public class SQLManagerConn {
     }
 
     public static String get(Object key, Connection conn, String table) throws SQLException {
-        String t = sanitizeTableName(table);
-        String keyString = objectToString(key);
+        // 1. Tablo adı kontrolü ve güvenli hale getirme
+        if (table == null || table.trim().isEmpty()) {
+//            Bukkit.getLogger().warning("[PluginAdin] Veritabanı hatası: Tablo adı boş olamaz!");
+            return null;
+        }
 
-        String query = "SELECT `value` FROM `" + t + "` WHERE `key` = ?";
+        String t = table.replaceAll("[^a-zA-Z0-9_]", "");
+
+        // Temizleme işleminden sonra tablo adı tamamen silindiyse işlemi durdur
+        if (t.isEmpty()) {
+//            Bukkit.getLogger().warning("[PluginAdin] Veritabanı hatası: Geçersiz tablo adı (" + table + ")");
+            return null;
+        }
+
+        String keyString = String.valueOf(key);
+
+        // İsteğe bağlı: Sadece geliştirici modunda veya debug için konsola yazdır
+        // Bukkit.getLogger().info("Sorgulanan tablo: " + t);
+
+        // LIMIT 1 ile optimizasyon (MySQL ve SQLite için geçerlidir)
+        String query = "SELECT `value` FROM `" + t + "` WHERE `key` = ? LIMIT 1";
+
+        // 2. Try-with-resources kullanımı (Zaten çok iyi yapmışsın, aynen koruyoruz)
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, keyString);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString("value");
+                    String val = rs.getString("value");
+                    // Eğer val null ise boş string dön, değilse veriyi dön
+                    return val != null ? val : "";
                 }
             }
         }
+
+        // Veri bulunamadı
         return null;
+    }
+
+    // Asenkron çağırmak için CompletableFuture kullanımı
+    public static CompletableFuture<String> getStringAsync(Object key, Connection conn, String table) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return get(key, conn, table);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
     }
 
     public static String getString(Object key, Connection conn, boolean includeQuotes, String table) throws SQLException {
