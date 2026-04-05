@@ -115,18 +115,26 @@ public class RPNSItems {
                             }
 
 
-                        if (cs.isSet("leather_color")) {
+                        String leatherColor = "leather_color";
+                        if (cs.isSet("leatherColor")) leatherColor = "leatherColor";
+                        if (cs.isSet(leatherColor)) {
                             if (itemMeta instanceof LeatherArmorMeta) {
-                                String[] s = cs.getString("leather_color").split(",");
+                                String string = cs.getString(leatherColor);
+                                string = papi.applyPAPI(pl, string);
+                                String[] s = string.split(",");
                                 ((LeatherArmorMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
                             }
                         }
                     }
 
                     if (itemMeta != null) {
-                        if (cs.isSet("potion_color")) {
+                        String potionColor = "potion_color";
+                        if (cs.isSet("potionColor")) potionColor = "potionColor";
+                        if (cs.isSet(potionColor)) {
                             if (itemMeta instanceof PotionMeta) {
-                                String[] s = cs.getString("potion_color").split(",");
+                                String string = cs.getString(potionColor);
+                                string = papi.applyPAPI(pl, string);
+                                String[] s = string.split(",");
                                 ((PotionMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2])));
                             }
                         }
