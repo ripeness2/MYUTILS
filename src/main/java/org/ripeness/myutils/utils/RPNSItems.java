@@ -78,8 +78,7 @@ public class RPNSItems {
                 // Kendi mevcut applyPAPI ve Bracket yapını kullanıyoruz
                 String processed = applyPAPI(player, val);
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                    processed = PlaceholderAPI.setPlaceholders(player, processed);
-                    processed = PlaceholderAPI.setBracketPlaceholders(player, processed);
+                    processed = PlaceholderAPI.setPlaceholders(player, PlaceholderAPI.setBracketPlaceholders(player, processed));
                 }
                 return processed;
             }
