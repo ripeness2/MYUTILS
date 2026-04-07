@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -21,6 +22,7 @@ import org.bukkit.potion.PotionType;
 import org.ripeness.myutils.muc;
 import org.ripeness.myutils.utils.inventoryies.inventoryutil;
 import org.ripeness.myutils.utils.items.ItemBuilder;
+import org.ripeness.myutils.utils.items.ItemStringer;
 import org.ripeness.myutils.utils.nbt.NBTMaker;
 
 import javax.annotation.Nullable;
@@ -152,6 +154,65 @@ public class RPNSItems {
 
             // 2. ITEMBUILDER İLE İNŞA BAŞLIYOR
             ItemBuilder ib = new ItemBuilder(type);
+            ItemStack res1 = ib.build();
+
+            // --- [YENİ] ITEM STRING LOGIC BURAYA ---
+            // Bu kısım, konfigürasyondaki diğer ayarlardan önce gelmeli ki temel eşyayı belirleyebilsin.
+            String rawItemString = cs.getString("itemString", "");
+            // Not: muc.replaceData listenin dışarıdan geldiğini varsayıyorum, eğer metodun içinde yoksa hata verebilir.
+            // Eğer replaceDatas listesi bu metodun içinde değilse burayı kendi sistemine göre düzenle.
+            if (!rawItemString.isEmpty()) {
+                String processedString = applyPAPI(pl, rawItemString);
+
+                ItemStringer.resultClass resultClass = ItemStringer.stringToItem(processedString);
+                ItemStack stringResult = resultClass.getResult();
+
+                if (stringResult != null) {
+                    ItemStringer.Options options = resultClass.getOptions();
+                    ItemBuilder stringBuilder = new ItemBuilder(res1);
+                    stringBuilder.setType(stringResult.getType());
+
+                    if (options.isIncludeModelData() && stringResult.hasItemMeta() && stringResult.getItemMeta().hasCustomModelData())
+                        stringBuilder.setCustomModelData(stringResult.getItemMeta().getCustomModelData());
+
+                    if (options.isIncludeLore() && stringResult.hasItemMeta() && stringResult.getItemMeta().hasLore())
+                        stringBuilder.setLore(stringResult.getItemMeta().getLore());
+
+                    if (options.isIncludeDisplay() && stringResult.hasItemMeta() && stringResult.getItemMeta().hasDisplayName())
+                        stringBuilder.setDisplayName(stringResult.getItemMeta().getDisplayName());
+
+                    res1 = stringBuilder.build();
+
+                    if (options.isIncludeAmount()) res1.setAmount(stringResult.getAmount());
+
+                    if (options.isIncludeFlags() && stringResult.hasItemMeta()) {
+                        ItemMeta im = res1.getItemMeta();
+                        if (im != null) {
+                            for (ItemFlag flag : stringResult.getItemMeta().getItemFlags()) im.addItemFlags(flag);
+                            res1.setItemMeta(im);
+                        }
+                    }
+
+                    // Banner ve Potion Meta aktarımları
+                    if (options.isIncludeBannerMeta() && stringResult.getItemMeta() instanceof BannerMeta) {
+                        ItemMeta resMeta = res1.getItemMeta();
+                        if (resMeta instanceof BannerMeta) {
+                            ((BannerMeta) resMeta).setPatterns(((BannerMeta) stringResult.getItemMeta()).getPatterns());
+                            res1.setItemMeta(resMeta);
+                        }
+                    }
+
+                    if (options.isIncludePotionData() && stringResult.getItemMeta() instanceof PotionMeta) {
+                        ItemMeta resMeta = res1.getItemMeta();
+                        if (resMeta instanceof PotionMeta) {
+                            ((PotionMeta) resMeta).setBasePotionData(((PotionMeta) stringResult.getItemMeta()).getBasePotionData());
+                            res1.setItemMeta(resMeta);
+                        }
+                    }
+                }
+            }
+            ib = new ItemBuilder(res1);
+            // --- ITEM STRING LOGIC SONU ---
 
             // Display Name
             if (cs.isString("display")) {
