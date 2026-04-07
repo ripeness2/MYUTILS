@@ -255,8 +255,8 @@ public class RPNSItems {
             List<String> rawLores = cs.getStringList(cs.isList("lores") ? "lores" : "lore");
             if (!rawLores.isEmpty()) {
                 List<String> processedLores = new ArrayList<>();
+                rawLores = applyReplacements(rawLores, replaceDatas); // Lore listesinde de replace işlemi uyguluyoruz
                 for (String s : rawLores) {
-                    s = applyReplacements(s, replaceDatas); // Lore satırlarında da replace işlemi uyguluyoruz
                     processedLores.add(rcc(applyPAPI(pl, s)));
                 }
                 ib.setLore(processedLores);
@@ -428,7 +428,7 @@ public class RPNSItems {
                 }
             } else {
                 // Eğer hiçbir koşulda output yoksa (veya checkConditions false ise), eşyayı buildItemInConfig ile inşa et
-                resultItem = buildItemInConfig(cs, pl, plugin);
+                resultItem = buildItemInConfig(cs, pl, plugin, Collections.emptyList());
             }
 
             // --- 3. AŞAMA: SAĞLANAN TÜM KOŞULLARIN GLOBAL (applyDirect: false) OUT_ACTIONS'LARINI SIRAYLA UYGULA ---
