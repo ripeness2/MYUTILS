@@ -34,227 +34,303 @@ public class RPNSItems {
 
     public static class config {
 
-        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin) {
-            Material type = null;
-            String display = "";
-            List<String> lores = null;
-            int cmodeldata = -1;
-            boolean isGlow = false;
-            String headvalue = null;
-            String headowner = null;
-            int amount = 1;
-            Map<String, String> nbties = new HashMap<>();
-            List<String> consolecmds = new ArrayList<>();
-            List<String> playercmds = new ArrayList<>();
+        private static boolean checkSingleItemCondition(OfflinePlayer player, ConfigurationSection cs) {
+            String type = cs.getString("type", "string:equals").toLowerCase();
+            String v1 = parseConditionVal(player, cs.getString("value1", ""));
+            String v2 = parseConditionVal(player, cs.getString("value2", ""));
 
+            switch (type) {
+                case "int:higher":
+                    return getConditionInt(v1) > getConditionInt(v2);
+                case "!int:higher":
+                    return getConditionInt(v1) < getConditionInt(v2);
+                case "int:higherorequals":
+                    return getConditionInt(v1) >= getConditionInt(v2);
+                case "!int:higherorequals":
+                    return getConditionInt(v1) <= getConditionInt(v2);
+                case "string:equals":
+                    return v1.equals(v2);
+                case "!string:equals":
+                    return !v1.equals(v2);
+                case "string:contains":
+                    return v1.contains(v2);
+                case "!string:contains":
+                    return !v1.contains(v2);
+                case "string:isempty":
+                    return v1.isEmpty();
+                case "!string:isempty":
+                    return !v1.isEmpty();
+                case "string:howmany;higherorequals":
+                    return checkConditionHowMany(v1, v2, false);
+                case "!string:howmany;higherorequals":
+                    return checkConditionHowMany(v1, v2, true);
+                default:
+                    return false;
+            }
+        }
 
+        private static String parseConditionVal(OfflinePlayer player, String val) {
+            if (val == null || val.isEmpty()) return "";
+            if (val.contains("%") || val.contains("[")) {
+                // Kendi mevcut applyPAPI ve Bracket yapını kullanıyoruz
+                String processed = applyPAPI(player, val);
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                    processed = PlaceholderAPI.setPlaceholders(player, processed);
+                    processed = PlaceholderAPI.setBracketPlaceholders(player, processed);
+                }
+                return processed;
+            }
+            return val;
+        }
+
+        private static int getConditionInt(String val) {
+            try {
+                if ("00".equals(val)) return 0;
+                return Integer.parseInt(val);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+
+        private static boolean checkConditionHowMany(String main, String val2, boolean invert) {
+            String[] parts = val2.split(";", 2);
+            if (parts.length < 2) return false;
+            int threshold = getConditionInt(parts[0]);
+            String sub = parts[1];
+
+            int count = 0, idx = 0;
+            while ((idx = main.indexOf(sub, idx)) != -1) {
+                count++;
+                idx += sub.length();
+            }
+            return invert == (count < threshold);
+        }
+
+        private static ItemStack applyItemOutActions(ItemStack item, ConfigurationSection actionsCs, OfflinePlayer pl, boolean directOnly) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) return item;
+
+            for (String actionKey : actionsCs.getKeys(false)) {
+                ConfigurationSection actionData = actionsCs.getConfigurationSection(actionKey);
+                if (actionData == null) continue;
+
+                // applyDirect kontrolü (varsayılan: false)
+                boolean isDirect = actionData.getBoolean("applyDirect", false);
+
+                // Filtreye uymuyorsa bu turu atla
+                if (isDirect != directOnly) continue;
+
+                String actionType = actionData.getString("type", "").toLowerCase();
+
+                if (actionType.equalsIgnoreCase("add_lores") || actionType.equalsIgnoreCase("addlores")) {
+                    List<String> loresToAdd = actionData.getStringList("lores");
+                    if (!loresToAdd.isEmpty()) {
+                        List<String> currentLore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+                        for (String s : loresToAdd) {
+                            currentLore.add(rcc(applyPAPI(pl, s)));
+                        }
+                        meta.setLore(currentLore);
+                    }
+                }
+                // Diğer tipler...
+            }
+
+            item.setItemMeta(meta);
+            return item;
+        }
+
+        public static ItemStack buildItemInConfig(ConfigurationSection cs, @Nullable OfflinePlayer pl, Plugin plugin) {
+            if (cs == null) return null;
+
+            // 1. TEMEL MATERYAL KONTROLÜ
+            String typeStr = cs.getString("type");
+            if (typeStr == null) return null;
+            Material type = Material.getMaterial(typeStr.toUpperCase());
+            if (type == null) return null;
+
+            // 2. ITEMBUILDER İLE İNŞA BAŞLIYOR
+            ItemBuilder ib = new ItemBuilder(type);
+
+            // Display Name
+            if (cs.isString("display")) {
+                ib.setDisplayName(rcc(applyPAPI(pl, cs.getString("display"))));
+            }
+
+            // Lore (Hem 'lores' hem 'lore' desteği)
+            List<String> rawLores = cs.getStringList(cs.isList("lores") ? "lores" : "lore");
+            if (!rawLores.isEmpty()) {
+                List<String> processedLores = new ArrayList<>();
+                for (String s : rawLores) {
+                    processedLores.add(rcc(applyPAPI(pl, s)));
+                }
+                ib.setLore(processedLores);
+            }
+
+            // Miktar, Parlama ve Model Data
+            ib.setAmount(Math.max(1, Math.min(64, cs.getInt("amount", 1))));
+            ib.setGlow(cs.getBoolean("glow", false));
+            if (cs.isInt("modeldata")) ib.setCustomModelData(cs.getInt("modeldata"));
+
+            // Kafa Dokuları (Kafaysa)
+            if (type == Material.PLAYER_HEAD) {
+                String hv = cs.getString("headValue");
+                String ho = cs.getString("headOwner");
+                if (hv != null && !hv.isEmpty()) ib.setHeadTextureValue(hv);
+                if (ho != null && !ho.isEmpty()) ib.setHead(applyPAPI(pl, ho));
+            }
+
+            ItemStack res = ib.build();
+            ItemMeta meta = res.getItemMeta();
+            if (meta == null) return res;
+
+            // 3. ÖZEL META İŞLEMLERİ (Potion, Leather, Flags)
+
+            // Potion Efekti
+            if (meta instanceof PotionMeta && cs.getBoolean("otoEffectPotion", true)) {
+                ((PotionMeta) meta).setBasePotionData(new PotionData(PotionType.POISON));
+            }
+
+            // Zırh ve İksir Renkleri
+            String lColor = cs.isSet("leatherColor") ? "leatherColor" : "leather_color";
+            if (cs.isSet(lColor) && meta instanceof LeatherArmorMeta) {
+                String[] s = applyPAPI(pl, cs.getString(lColor)).split(",");
+                if (s.length == 3) meta.setLore(Collections.singletonList(null)); // dummy check
+                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
+            }
+
+            String pColor = cs.isSet("potionColor") ? "potionColor" : "potion_color";
+            if (cs.isSet(pColor) && meta instanceof PotionMeta) {
+                String[] s = applyPAPI(pl, cs.getString(pColor)).split(",");
+                if (s.length == 3)
+                    ((PotionMeta) meta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
+            }
+
+            // Item Flagleri (HideAll)
+            if (cs.getBoolean("hideAll", true)) {
+                for (ItemFlag flag : ItemFlag.values()) meta.addItemFlags(flag);
+            }
+
+            res.setItemMeta(meta);
+
+            // 4. NBT VE KOMUTLAR (Plugin varsa)
+            if (plugin != null) {
+                NBTMaker nbt = new NBTMaker(res, true);
+
+                // Komutları NBT'ye göm
+                List<String> consoleCmds = cs.getStringList("consolecmds");
+                List<String> playerCmds = cs.getStringList("playercmds");
+                nbt.setString(plugin.getName() + "+myutils_cmdexecutor_console", String.join(";;;;", consoleCmds));
+                nbt.setString(plugin.getName() + "+myutils_cmdexecutor_player", String.join(";;;;", playerCmds));
+
+                // Özel NBT'ler (nbties)
+                ConfigurationSection nbtSection = cs.getConfigurationSection("nbties");
+                if (nbtSection != null) {
+                    for (String rawKey : nbtSection.getKeys(false)) {
+                        String rawValue = nbtSection.getString(rawKey);
+                        if (rawValue == null || !rawValue.contains(";")) continue;
+
+                        String keyName = rawKey;
+                        if (rawKey.contains(";;")) {
+                            String[] compSplit = rawKey.split(";;", 2);
+                            nbt.setCompound(compSplit[0].trim());
+                            keyName = compSplit[1].trim();
+                        }
+
+                        String[] valSplit = rawValue.split(";", 2);
+                        String nbtType = valSplit[0].toUpperCase(Locale.ENGLISH).trim();
+                        String finalVal = applyPAPI(pl, valSplit[1].trim());
+
+                        try {
+                            switch (nbtType) {
+                                case "INTEGER":
+                                    nbt.setInteger(keyName, Integer.parseInt(finalVal));
+                                    break;
+                                case "BOOLEAN":
+                                    nbt.setBoolean(keyName, Boolean.parseBoolean(finalVal));
+                                    break;
+                                default:
+                                    nbt.setString(keyName, finalVal);
+                                    break;
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+                res = nbt.getItem(); // NBT'li item'ı geri al
+            }
+
+            return res;
+        }
+
+        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin, boolean checkConditions) {
             ConfigurationSection cs = cf.getConfigurationSection(loc);
-            if (cs != null) {
-                if (cs.isString("type")) {
-                    type = Material.getMaterial(Objects.requireNonNull(cs.getString("type")));
-                }
-                if (cs.isString("display")) {
-                    display = rcc(applyPAPI(pl, cs.getString("display", "")));
-                }
-                if (cs.isList("lores")) {
-                    List<String> ex = new ArrayList<>();
-                    for (String s : cs.getStringList("lores")) {
-                        ex.add(rcc(applyPAPI(pl, s)));
-                    }
-                    lores = ex;
-                }
-                if (cs.isList("lore")) {
-                    List<String> ex = new ArrayList<>();
-                    for (String s : cs.getStringList("lore")) {
-                        ex.add(rcc(applyPAPI(pl, s)));
-                    }
-                    lores = ex;
-                }
-                if (cs.isInt("modeldata")) {
-                    cmodeldata = cs.getInt("modeldata");
-                }
-                if (cs.isBoolean("glow")) {
-                    isGlow = cs.getBoolean("glow");
-                }
-                if (cs.isString("headValue")) {
-                    headvalue = cs.getString("headValue");
-                }
+            if (cs == null) return null;
 
-                if (cs.isString("headOwner")) {
-                    headowner = applyPAPI(pl, cs.getString("headOwner"));
-                }
+            List<ConfigurationSection> metConditions = new ArrayList<>();
+            String targetOutput = null;
+            ConfigurationSection outputCondition = null; // Hangi koşulun output verdiğini tutması için ekledik
 
-                if (cs.isInt("amount")) {
-                    amount = cs.getInt("amount");
-                    if (amount > 64) amount = 64;
-                    if (amount < 1) amount = 1;
-                }
+            // --- 1. AŞAMA: ŞARTLARI KONTROL ET VE SAĞLANANLARI TOPLA ---
+            if (checkConditions && cs.isConfigurationSection("conditions")) {
+                ConfigurationSection condSection = cs.getConfigurationSection("conditions");
 
-
-                if (type != null) {
-                    ItemBuilder ib = new ItemBuilder(type);
-                    if (!Objects.requireNonNull(display).isEmpty()) ib.setDisplayName(display);
-                    ib.setLore(lores);
-                    ib.setAmount(amount);
-                    if (type.equals(Material.PLAYER_HEAD) && headvalue != null && !headvalue.isEmpty()) {
-                        ib.setHeadTextureValue(headvalue);
-                    }
-                    if (type.equals(Material.PLAYER_HEAD) && headowner != null && !headowner.isEmpty()) {
-                        ib.setHead(headowner);
-                    }
-                    ib.setGlow(isGlow);
-                    if (cmodeldata != -1) ib.setCustomModelData(cmodeldata);
-                    ItemStack res = ib.build();
-                    ItemMeta itemMeta = res.getItemMeta();
-                    if (itemMeta != null) {
-                        if (itemMeta instanceof PotionMeta)
-                            if (cs.isBoolean("otoEffectPotion")) {
-                                if (cs.getBoolean("otoEffectPotion", true)) {
-                                    ((PotionMeta) itemMeta).setBasePotionData(new PotionData(PotionType.POISON));
-                                }
-                            }
-
-
-                        String leatherColor = "leather_color";
-                        if (cs.isSet("leatherColor")) leatherColor = "leatherColor";
-                        if (cs.isSet(leatherColor)) {
-                            if (itemMeta instanceof LeatherArmorMeta) {
-                                String string = cs.getString(leatherColor);
-                                string = papi.applyPAPI(pl, string);
-                                String[] s = string.split(",");
-                                ((LeatherArmorMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
-                            }
+                if (condSection != null) {
+                    for (String key : condSection.getKeys(false)) {
+                        ConfigurationSection condData = condSection.getConfigurationSection(key);
+                        if (condData != null && checkSingleItemCondition(pl, condData)) {
+                            metConditions.add(condData);
                         }
                     }
+                }
 
-                    if (itemMeta != null) {
-                        String potionColor = "potion_color";
-                        if (cs.isSet("potionColor")) potionColor = "potionColor";
-                        if (cs.isSet(potionColor)) {
-                            if (itemMeta instanceof PotionMeta) {
-                                String string = cs.getString(potionColor);
-                                string = papi.applyPAPI(pl, string);
-                                String[] s = string.split(",");
-                                ((PotionMeta) itemMeta).setColor(Color.fromRGB(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2])));
-                            }
-                        }
+                // Önceliğe göre sırala (Düşük rakam = Yüksek öncelik)
+                metConditions.sort(Comparator.comparingInt(c -> c.getInt("priority", 888)));
+
+                // En yüksek öncelikli (ilk sıradaki) geçerli output'u bul
+                for (ConfigurationSection cond : metConditions) {
+                    String out = cond.getString("output");
+                    if (out != null && !out.isEmpty()) {
+                        targetOutput = out;
+                        outputCondition = cond; // Output'u tetikleyen şartı kaydet
+                        break; // Output bulunduğunda dur (Diğer koşulların out_actions'ları hala listede duruyor)
                     }
-
-                    if (itemMeta != null)
-                        if (cs.isBoolean("hideAll")) {
-                            if (cs.getBoolean("hideAll", true)) {
-                                for (ItemFlag value : ItemFlag.values()) {
-                                    itemMeta.addItemFlags(value);
-                                }
-                            }
-                        }
-
-
-                    res.setItemMeta(itemMeta);
-
-//                if (cs.isConfigurationSection("nbties")) {
-//                    for (String key : cs.getConfigurationSection("nbties").getKeys(false)) {
-//                        String compName = null;
-//                        String keyName = cs.getString("nbties." + key);
-//                        String keyType = "STRING";
-//                        String[] split = key.split(":");
-//                        if ((split.length != 0)) {
-//                            compName = split[0];
-//                        }
-//                        String[] keysValue = Objects.requireNonNull(keyName).split(":");
-//                        keyType = keysValue[0].toUpperCase(Locale.ENGLISH);
-//
-//                        NBTMaker nbtMaker = new NBTMaker(res, true).setCompound(compName);
-//                        if (keyType.equals("INTEGER")) {
-//                            nbtMaker.setInteger(split[1], Integer.parseInt(keysValue[1]));
-//                        } else if (keyType.equals("BOOLEAN")) {
-//                            nbtMaker.setBoolean(split[1], Boolean.parseBoolean(keysValue[1]));
-//                        } else {
-//                            //nbtMaker.setString(split[1], (keysValue[1]));
-//                        }
-//
-//
-//                    }
-//                }
-                    if (plugin != null) {
-
-                        consolecmds = cs.getStringList("consolecmds");
-                        playercmds = cs.getStringList("playercmds");
-
-                        NBTMaker nbtItem = new NBTMaker(res, true);
-                        nbtItem.setString(plugin.getName() + "+myutils_cmdexecutor_console", String.join(";;;;", consolecmds));
-                        nbtItem.setString(plugin.getName() + "+myutils_cmdexecutor_player", String.join(";;;;", playercmds));
-
-                        ConfigurationSection nbtSection = cs.getConfigurationSection("nbties");
-                        if (nbtSection != null) {
-
-                            for (String rawKey : nbtSection.getKeys(false)) {
-
-                                String rawValue = nbtSection.getString(rawKey);
-                                if (rawValue == null || rawValue.isEmpty()) continue;
-
-                                // ---- COMPOUND AYRIŞTIRMA ( ;; ) ----
-                                String compoundName = null;
-                                String keyName = rawKey;
-
-                                if (rawKey.contains(";;")) {
-                                    String[] compoundSplit = rawKey.split(";;", 2);
-                                    if (compoundSplit.length != 2) continue;
-
-                                    compoundName = compoundSplit[0].trim();
-                                    keyName = compoundSplit[1].trim();
-
-                                    if (compoundName.isEmpty() || keyName.isEmpty()) continue;
-                                }
-
-                                // ---- TYPE & VALUE AYRIŞTIRMA ----
-                                String[] valueSplit = rawValue.split(";", 2);
-                                if (valueSplit.length != 2) continue;
-
-                                String typee1 = valueSplit[0].toUpperCase(Locale.ENGLISH).trim();
-                                String value = valueSplit[1].trim();
-                                value = RPNSItems.papi.applyPAPI(pl, value);
-
-                                NBTMaker nbtMaker = new NBTMaker(res, true);
-                                if (compoundName != null) {
-                                    nbtMaker.setCompound(compoundName);
-                                }
-
-                                try {
-
-                                    if (typee1.equals("INTEGER")) {
-                                        nbtMaker.setInteger(keyName, Integer.parseInt(value));
-
-                                    } else if (typee1.equals("BOOLEAN")) {
-                                        nbtMaker.setBoolean(keyName, Boolean.parseBoolean(value));
-//
-//                            } else if (type.equals("DOUBLE")) {
-//                                nbtMaker.setDouble(keyName, Double.parseDouble(value));
-//
-//                            } else if (type.equals("LONG")) {
-//                                nbtMaker.setLong(keyName, Long.parseLong(value));
-
-                                    } else if (typee1.equals("STRING")) {
-                                        nbtMaker.setString(keyName, value);
-
-                                    } else {
-                                        // Bilinmeyen type → güvenli fallback
-                                        nbtMaker.setString(keyName, value);
-                                    }
-
-                                } catch (Exception ex) {
-                                    Bukkit.getLogger().warning(
-                                            "[NBT] Hatalı NBT girişi: key=" + rawKey + " value=" + rawValue
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    return res;
                 }
             }
-            return null;
+
+            ItemStack resultItem = null;
+
+            // --- 2. AŞAMA: ANA EŞYAYI OLUŞTUR VEYA ÇEK ---
+            if (targetOutput != null) {
+                // Eğer koşullardan biri başka bir output'a yönlendirdiyse, ana eşya olarak onu çek (Sonsuz döngüyü önlemek için checkConditions=false)
+                resultItem = getItemInConfig(targetOutput, cf, pl, plugin, false);
+
+                // EĞER OUTPUT VARSA: Sadece bu "outputCondition" içindeki applyDirect: true olan aksiyonları o an uygula
+                //noinspection ConstantValue
+                if (resultItem != null && outputCondition != null && outputCondition.isConfigurationSection("out_actions")) {
+                    // applyDirect: true olarak çağırıyoruz
+                    //noinspection DataFlowIssue
+                    resultItem = applyItemOutActions(resultItem, outputCondition.getConfigurationSection("out_actions"), pl, true);
+                }
+            } else {
+                // Eğer hiçbir koşulda output yoksa (veya checkConditions false ise), eşyayı buildItemInConfig ile inşa et
+                resultItem = buildItemInConfig(cs, pl, plugin);
+            }
+
+            // --- 3. AŞAMA: SAĞLANAN TÜM KOŞULLARIN GLOBAL (applyDirect: false) OUT_ACTIONS'LARINI SIRAYLA UYGULA ---
+            if (resultItem != null && !metConditions.isEmpty()) {
+                for (ConfigurationSection cond : metConditions) {
+                    if (cond.isConfigurationSection("out_actions")) {
+                        // Burada applyDirect: false olanları (veya yazılmamış olanları) topluca en sona ekliyoruz
+                        resultItem = applyItemOutActions(resultItem, cond.getConfigurationSection("out_actions"), pl, false);
+                    }
+                }
+            }
+
+            return resultItem;
+        }
+
+        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin) {
+            return getItemInConfig(loc, cf, pl, plugin, true);
         }
 
         public static ItemStack getItemInConfigNullable(String loc, FileConfiguration cf, @Nullable String pln) {
