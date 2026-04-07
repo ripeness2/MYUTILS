@@ -48,7 +48,6 @@ public class ObjectMapData {
 
     //----------------- SERIALIZE -----------------
 
-    @SuppressWarnings("unchecked")
     public static String serializeObject(Object obj) {
         if (obj == null) {
             return "null";
