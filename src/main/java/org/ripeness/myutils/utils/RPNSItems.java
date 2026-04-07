@@ -381,6 +381,7 @@ public class RPNSItems {
             return res;
         }
 
+        //TODO MAIN METHOD
         public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin, boolean checkConditions, List<muc.replaceData> replaceDatas) {
             ConfigurationSection cs = cf.getConfigurationSection(loc);
             if (cs == null) return null;
@@ -447,6 +448,7 @@ public class RPNSItems {
             return resultItem;
         }
 
+        //TODO FIRST USAGE METHOD
         public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin) {
             return getItemInConfig(loc, cf, pl, plugin, true, Collections.emptyList());
         }
