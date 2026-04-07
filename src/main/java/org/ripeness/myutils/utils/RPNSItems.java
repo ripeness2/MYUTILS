@@ -212,7 +212,7 @@ public class RPNSItems {
                 String[] s = applyPAPI(pl, cs.getString(pColor)).split(",");
                 if (s.length == 3) {
                     ((PotionMeta) meta).setColor(Color.fromRGB(
-                            Integer.parseInt(s[0].trim()),
+                            Integer.parseInt(s[0].trim()),//
                             Integer.parseInt(s[1].trim()),
                             Integer.parseInt(s[2].trim())
                     ));
