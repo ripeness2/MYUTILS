@@ -196,6 +196,20 @@ public class inventoryutil {
         return -1;
     }
 
+    public static boolean hasNbtInMenu(String nbt, Inventory i) {
+        if (i != null) {
+            for (ItemStack storageContent : i.getStorageContents()) {
+                if (storageContent != null && !storageContent.getType().isAir()) {
+                    NBTItem n = getNBT(storageContent);
+                    if (n.hasTag(nbt)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public static String checkAndGetNbtDataSTRING(String nbt, Inventory i) {
 
         if (i != null) {
