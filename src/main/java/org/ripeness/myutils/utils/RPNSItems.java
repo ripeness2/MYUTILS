@@ -127,7 +127,9 @@ public class RPNSItems {
                     if (!loresToAdd.isEmpty()) {
                         List<String> currentLore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
                         for (String s : loresToAdd) {
-                            currentLore.add(rcc(applyPAPI(pl, s)));
+                            if (currentLore != null) {
+                                currentLore.add(rcc(applyPAPI(pl, s)));
+                            }
                         }
                         meta.setLore(currentLore);
                     }
@@ -153,7 +155,7 @@ public class RPNSItems {
 
             // Display Name
             if (cs.isString("display")) {
-                ib.setDisplayName(rcc(applyPAPI(pl, cs.getString("display"))));
+                ib.setDisplayName(rcc(applyPAPI(pl, cs.getString("display", ""))));
             }
 
             // Lore (Hem 'lores' hem 'lore' desteği)
@@ -322,8 +324,7 @@ public class RPNSItems {
                 //noinspection ConstantValue
                 if (resultItem != null && outputCondition != null && outputCondition.isConfigurationSection("out_actions")) {
                     // applyDirect: true olarak çağırıyoruz
-                    //noinspection DataFlowIssue
-                    resultItem = applyItemOutActions(resultItem, outputCondition.getConfigurationSection("out_actions"), pl, true);
+                    applyItemOutActions(resultItem, outputCondition.getConfigurationSection("out_actions"), pl, true);
                 }
             } else {
                 // Eğer hiçbir koşulda output yoksa (veya checkConditions false ise), eşyayı buildItemInConfig ile inşa et
@@ -335,7 +336,7 @@ public class RPNSItems {
                 for (ConfigurationSection cond : metConditions) {
                     if (cond.isConfigurationSection("out_actions")) {
                         // Burada applyDirect: false olanları (veya yazılmamış olanları) topluca en sona ekliyoruz
-                        resultItem = applyItemOutActions(resultItem, cond.getConfigurationSection("out_actions"), pl, false);
+                        applyItemOutActions(resultItem, cond.getConfigurationSection("out_actions"), pl, false);
                     }
                 }
             }
