@@ -34,6 +34,7 @@ import static org.ripeness.myutils.utils.chat.tt.rcc;
 public class RPNSItems {
 
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class config {
 
         private static boolean checkSingleItemCondition(OfflinePlayer player, ConfigurationSection cs) {
@@ -216,10 +217,12 @@ public class RPNSItems {
                     if (options.isIncludeAmount()) res1.setAmount(stringResult.getAmount());
 
                     if (options.isIncludeFlags() && stringResult.hasItemMeta()) {
-                        ItemMeta im = res1.getItemMeta();
-                        if (im != null) {
-                            for (ItemFlag flag : stringResult.getItemMeta().getItemFlags()) im.addItemFlags(flag);
-                            res1.setItemMeta(im);
+                        if (res1.hasItemMeta()) {
+                            ItemMeta im = res1.getItemMeta();
+                            if (im != null) {
+                                for (ItemFlag flag : stringResult.getItemMeta().getItemFlags()) im.addItemFlags(flag);
+                                res1.setItemMeta(im);
+                            }
                         }
                     }
 
@@ -428,7 +431,7 @@ public class RPNSItems {
                 }
             } else {
                 // Eğer hiçbir koşulda output yoksa (veya checkConditions false ise), eşyayı buildItemInConfig ile inşa et
-                resultItem = buildItemInConfig(cs, pl, plugin, Collections.emptyList());
+                resultItem = buildItemInConfig(cs, pl, plugin, replaceDatas);
             }
 
             // --- 3. AŞAMA: SAĞLANAN TÜM KOŞULLARIN GLOBAL (applyDirect: false) OUT_ACTIONS'LARINI SIRAYLA UYGULA ---
