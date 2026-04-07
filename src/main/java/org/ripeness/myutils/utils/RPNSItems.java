@@ -143,12 +143,41 @@ public class RPNSItems {
             return item;
         }
 
-        public static ItemStack buildItemInConfig(ConfigurationSection cs, @Nullable OfflinePlayer pl, Plugin plugin) {
+
+        // Yardımcı Metot: String içindeki tüm eşleşmeleri değiştirir
+        private static String applyReplacements(String text, List<muc.replaceData> replaceDatas) {
+            if (text == null || text.isEmpty() || replaceDatas == null || replaceDatas.isEmpty()) return text;
+            for (muc.replaceData data : replaceDatas) {
+                if (data.getOldChar() != null && data.getNewChar() != null) {
+                    text = text.replace(data.getOldChar(), data.getNewChar());
+                }
+            }
+            return text;
+        }
+
+        private static List<String> applyReplacements(List<String> list, List<muc.replaceData> replaceDatas) {
+            if (list == null || list.isEmpty() || replaceDatas == null || replaceDatas.isEmpty()) return list;
+
+            List<String> newList = new ArrayList<>();
+            for (String line : list) {
+                if (line == null) {
+                    newList.add(null);
+                    continue;
+                }
+
+                // Mevcut String versiyonunu her satır için çağırıyoruz
+                newList.add(applyReplacements(line, replaceDatas));
+            }
+            return newList;
+        }
+
+        public static ItemStack buildItemInConfig(ConfigurationSection cs, @Nullable OfflinePlayer pl, Plugin plugin, List<muc.replaceData> replaceDatas) {
             if (cs == null) return null;
 
             // 1. TEMEL MATERYAL KONTROLÜ
             String typeStr = cs.getString("type");
             if (typeStr == null) return null;
+            typeStr = applyReplacements(typeStr, replaceDatas); // Materyal adında da replace işlemi uyguluyoruz
             Material type = Material.getMaterial(typeStr.toUpperCase());
             if (type == null) return null;
 
@@ -162,6 +191,7 @@ public class RPNSItems {
             // Not: muc.replaceData listenin dışarıdan geldiğini varsayıyorum, eğer metodun içinde yoksa hata verebilir.
             // Eğer replaceDatas listesi bu metodun içinde değilse burayı kendi sistemine göre düzenle.
             if (!rawItemString.isEmpty()) {
+                rawItemString = applyReplacements(rawItemString, replaceDatas); // itemString içinde de replace işlemi uyguluyoruz
                 String processedString = applyPAPI(pl, rawItemString);
 
                 ItemStringer.resultClass resultClass = ItemStringer.stringToItem(processedString);
@@ -216,7 +246,9 @@ public class RPNSItems {
 
             // Display Name
             if (cs.isString("display")) {
-                ib.setDisplayName(rcc(applyPAPI(pl, cs.getString("display", ""))));
+                String string = cs.getString("display", "");
+                string = applyReplacements(string, replaceDatas); // Display adında da replace işlemi uyguluyoruz
+                ib.setDisplayName(rcc(applyPAPI(pl, string)));
             }
 
             // Lore (Hem 'lores' hem 'lore' desteği)
@@ -224,6 +256,7 @@ public class RPNSItems {
             if (!rawLores.isEmpty()) {
                 List<String> processedLores = new ArrayList<>();
                 for (String s : rawLores) {
+                    s = applyReplacements(s, replaceDatas); // Lore satırlarında da replace işlemi uyguluyoruz
                     processedLores.add(rcc(applyPAPI(pl, s)));
                 }
                 ib.setLore(processedLores);
@@ -237,8 +270,10 @@ public class RPNSItems {
             // Kafa Dokuları (Kafaysa)
             if (type == Material.PLAYER_HEAD) {
                 String hv = cs.getString("headValue");
+                hv = applyReplacements(hv, replaceDatas); // headValue içinde de replace işlemi uyguluyoruz
                 String ho = cs.getString("headOwner");
-                if (hv != null && !hv.isEmpty()) ib.setHeadTextureValue(hv);
+                ho = applyReplacements(ho, replaceDatas); // headOwner içinde de replace işlemi uyguluyoruz
+                if (hv != null && !hv.isEmpty()) ib.setHeadTextureValue(applyPAPI(pl, hv));
                 if (ho != null && !ho.isEmpty()) ib.setHead(applyPAPI(pl, ho));
             }
 
@@ -258,6 +293,7 @@ public class RPNSItems {
             String lColor = cs.isSet("leatherColor") ? "leatherColor" : (cs.isSet("leather_color") ? "leather_color" : "color");
 
             if (cs.isSet(lColor) && meta instanceof LeatherArmorMeta) {
+                lColor = applyReplacements(lColor, replaceDatas); // leatherColor içinde de replace işlemi uyguluyoruz
                 String[] s = applyPAPI(pl, cs.getString(lColor)).split(",");
                 if (s.length == 3) {
                     ((LeatherArmorMeta) meta).setColor(Color.fromRGB(
@@ -272,6 +308,7 @@ public class RPNSItems {
             String pColor = cs.isSet("potionColor") ? "potionColor" : (cs.isSet("potion_color") ? "potion_color" : "color");
 
             if (cs.isSet(pColor) && meta instanceof PotionMeta) {
+                pColor = applyReplacements(pColor, replaceDatas); // potionColor içinde de replace işlemi uyguluyoruz
                 String[] s = applyPAPI(pl, cs.getString(pColor)).split(",");
                 if (s.length == 3) {
                     ((PotionMeta) meta).setColor(Color.fromRGB(
@@ -295,7 +332,9 @@ public class RPNSItems {
 
                 // Komutları NBT'ye göm
                 List<String> consoleCmds = cs.getStringList("consolecmds");
+                consoleCmds = applyReplacements(consoleCmds, replaceDatas); // consolecmds içinde de replace işlemi uyguluyoruz
                 List<String> playerCmds = cs.getStringList("playercmds");
+                playerCmds = applyReplacements(playerCmds, replaceDatas); // playercmds içinde de replace işlemi uyguluyoruz
                 nbt.setString(plugin.getName() + "+myutils_cmdexecutor_console", String.join(";;;;", consoleCmds));
                 nbt.setString(plugin.getName() + "+myutils_cmdexecutor_player", String.join(";;;;", playerCmds));
 
