@@ -378,7 +378,7 @@ public class RPNSItems {
             return res;
         }
 
-        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin, boolean checkConditions) {
+        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin, boolean checkConditions, List<muc.replaceData> replaceDatas) {
             ConfigurationSection cs = cf.getConfigurationSection(loc);
             if (cs == null) return null;
 
@@ -418,7 +418,7 @@ public class RPNSItems {
             // --- 2. AŞAMA: ANA EŞYAYI OLUŞTUR VEYA ÇEK ---
             if (targetOutput != null) {
                 // Eğer koşullardan biri başka bir output'a yönlendirdiyse, ana eşya olarak onu çek (Sonsuz döngüyü önlemek için checkConditions=false)
-                resultItem = getItemInConfig(targetOutput, cf, pl, plugin, false);
+                resultItem = getItemInConfig(targetOutput, cf, pl, plugin, false, replaceDatas);
 
                 // EĞER OUTPUT VARSA: Sadece bu "outputCondition" içindeki applyDirect: true olan aksiyonları o an uygula
                 //noinspection ConstantValue
@@ -445,7 +445,11 @@ public class RPNSItems {
         }
 
         public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin) {
-            return getItemInConfig(loc, cf, pl, plugin, true);
+            return getItemInConfig(loc, cf, pl, plugin, true, Collections.emptyList());
+        }
+
+        public static ItemStack getItemInConfig(String loc, FileConfiguration cf, @Nullable OfflinePlayer pl, Plugin plugin, List<muc.replaceData> replaceDatas) {
+            return getItemInConfig(loc, cf, pl, plugin, true, replaceDatas);
         }
 
         public static ItemStack getItemInConfigNullable(String loc, FileConfiguration cf, @Nullable String pln) {
