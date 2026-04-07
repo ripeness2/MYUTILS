@@ -191,18 +191,32 @@ public class RPNSItems {
             }
 
             // Zırh ve İksir Renkleri
-            String lColor = cs.isSet("leatherColor") ? "leatherColor" : "leather_color";
+// --- Leather Armor Kısmı ---
+            String lColor = cs.isSet("leatherColor") ? "leatherColor" : (cs.isSet("leather_color") ? "leather_color" : "color");
+
             if (cs.isSet(lColor) && meta instanceof LeatherArmorMeta) {
                 String[] s = applyPAPI(pl, cs.getString(lColor)).split(",");
-                if (s.length == 3) meta.setLore(Collections.singletonList(null)); // dummy check
-                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
+                if (s.length == 3) {
+                    ((LeatherArmorMeta) meta).setColor(Color.fromRGB(
+                            Integer.parseInt(s[0].trim()),
+                            Integer.parseInt(s[1].trim()),
+                            Integer.parseInt(s[2].trim())
+                    ));
+                }
             }
 
-            String pColor = cs.isSet("potionColor") ? "potionColor" : "potion_color";
+// --- Potion Kısmı ---
+            String pColor = cs.isSet("potionColor") ? "potionColor" : (cs.isSet("potion_color") ? "potion_color" : "color");
+
             if (cs.isSet(pColor) && meta instanceof PotionMeta) {
                 String[] s = applyPAPI(pl, cs.getString(pColor)).split(",");
-                if (s.length == 3)
-                    ((PotionMeta) meta).setColor(Color.fromRGB(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()), Integer.parseInt(s[2].trim())));
+                if (s.length == 3) {
+                    ((PotionMeta) meta).setColor(Color.fromRGB(
+                            Integer.parseInt(s[0].trim()),
+                            Integer.parseInt(s[1].trim()),
+                            Integer.parseInt(s[2].trim())
+                    ));
+                }
             }
 
             // Item Flagleri (HideAll)
