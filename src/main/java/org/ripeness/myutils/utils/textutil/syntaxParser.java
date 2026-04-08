@@ -9,11 +9,30 @@ public class syntaxParser {
 
     public static Map<String, String> getTags(String input) {
         Map<String, String> tags = new HashMap<>();
-        Pattern pattern = Pattern.compile("<(\\w+)=([^>]+)>");
+        // Sadece <anahtar= kısmını bulmak için basit bir başlangıç
+        Pattern pattern = Pattern.compile("<(\\w+)=");
         Matcher matcher = pattern.matcher(input);
 
         while (matcher.find()) {
-            tags.put(matcher.group(1), matcher.group(2));
+            String key = matcher.group(1);
+            int startPos = matcher.end(); // Değerin başladığı yer
+            int braceCount = 1; // < ile başladık
+            StringBuilder value = new StringBuilder();
+
+            // Karakter karakter ilerleyerek doğru kapatma parantezini bulalım
+            for (int i = startPos; i < input.length(); i++) {
+                char c = input.charAt(i);
+                if (c == '<') braceCount++;
+                if (c == '>') braceCount--;
+
+                if (braceCount == 0) {
+                    // Eşleşen dış parantezi bulduk
+                    tags.put(key, value.toString());
+                    break;
+                } else {
+                    value.append(c);
+                }
+            }
         }
         return tags;
     }
